@@ -1,0 +1,44 @@
+# Build directories
+Build/
+build/
+Debug/
+Release/
+x64/ # if using 64-bit builds
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.pdb
+*.exp
+*.idb
+
+# JUCE-generated and temporary files
+*.jucer.lock
+*.user
+*.vcxproj.user
+*.VC.db
+*.VC.opendb
+
+# VS Solution and Project files (optional to ignore, but keep if sharing full VS solution)
+*.suo
+*.sln
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and caches
+*.log
+*.cache
+*.tmp
+*.bak
+
+# Other editors swap files
+*.swp
+*.swo
+*~
+
+# Optional: ignore local plugin builds
+/VST3/
