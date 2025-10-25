@@ -25,14 +25,32 @@ float QuadFilter::processSample(float x)
 const float PI = 3.14159265358f;
 
 void Filter::processBlock(juce::AudioBuffer<float>& buffer) {
-    updateCoeffs();
+    int numChannels = buffer.getNumChannels();
+
+    if (qfilter1.size() != numChannels) {
+        qfilter1.resize(numChannels);
+        qfilter2.resize(numChannels);
+
+        for (auto& f : qfilter1) f.reset();
+        for (auto& f : qfilter2) f.reset();
+
+        DBG("Filter resized for " << numChannels << " channels.");
+
+        updateCoeffs(true);
+    }
+    else {
+        updateCoeffs();
+    }
 
     for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
         auto* samples = buffer.getWritePointer(channel);
+        auto& stage1 = qfilter1[channel];
+        auto& stage2 = qfilter2[channel];
+
         for (int n = 0; n < buffer.getNumSamples(); ++n) {
             float s = samples[n];
-            s = qfilter1.processSample(s);
-            s = qfilter2.processSample(s);
+            s = stage1.processSample(s);
+            s = stage2.processSample(s);
             samples[n] = s;
         }
     }
@@ -42,7 +60,7 @@ LowPassFilter::LowPassFilter() {
     updateCoeffs();
 }
 
-void LowPassFilter::calcCoeffs() {
+void LowPassFilter::calcAndSetCoeffs() {
     //forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063&ref_url=https%253A%252F%252Fchatgpt.com%252F
 
     float w0 = 2.0f * PI * cutoff / sampleRate;
@@ -64,11 +82,15 @@ void LowPassFilter::calcCoeffs() {
     b2 /= a0;
     a1 /= a0;
     a2 /= a0;
-    
-    qfilter1.setCoeffs(b0, b1, b2, a1, a2);
-    qfilter2.setCoeffs(b0, b1, b2, a1, a2);
 
-    DBG("LowPassFilter::calcCoeffs() called");
+    for (auto& x : qfilter1) {
+        x.setCoeffs(b0, b1, b2, a1, a2);
+    }
+    for (auto& x : qfilter2) {
+        x.setCoeffs(b0, b1, b2, a1, a2);
+    }
+    
+    DBG("LowPassFilter::calcAndSetCoeffs() called");
 }
 
 HighPassFilter::HighPassFilter() {
@@ -76,7 +98,7 @@ HighPassFilter::HighPassFilter() {
 }
 
 
-void HighPassFilter::calcCoeffs() {
+void HighPassFilter::calcAndSetCoeffs() {
     //forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063&ref_url=https%253A%252F%252Fchatgpt.com%252F
 
     float w0 = 2.0f * PI * cutoff / sampleRate;
@@ -87,7 +109,7 @@ void HighPassFilter::calcCoeffs() {
     float alpha = sinw0 / (2.0f * sqrt(resonance));
 
     float b0 = (1 + cosw0) / 2;
-    float b1 = 1 + cosw0;
+    float b1 = -(1 + cosw0);
     float b2 = (1 + cosw0) / 2;
     float a0 = 1 + alpha;
     float a1 = -2 * cosw0;
@@ -99,8 +121,12 @@ void HighPassFilter::calcCoeffs() {
     a1 /= a0;
     a2 /= a0;
 
-    qfilter1.setCoeffs(b0, b1, b2, a1, a2);
-    qfilter2.setCoeffs(b0, b1, b2, a1, a2);
+    for (auto& x : qfilter1) {
+        x.setCoeffs(b0, b1, b2, a1, a2);
+    }
+    for (auto& x : qfilter2) {
+        x.setCoeffs(b0, b1, b2, a1, a2);
+    }
 
-    DBG("LowPassFilter::calcCoeffs() called");
+    DBG("HighPassFilter::calcAndSetCoeffs() called");
 }

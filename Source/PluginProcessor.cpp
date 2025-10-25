@@ -22,7 +22,19 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
-        juce::NormalisableRange{ 0.1f, 10.f, 0.01f }, 0.707f));
+        juce::NormalisableRange{ 0.3f, 88.f, 0.0005f, 0.2f }, 0.707f));
+
+    /*
+    Rezonancia hatarok:
+    
+      - a Texas Instr keplete alapjan: 
+          BW = bandwidth in octave
+          w0 = 2pi * cutoff / sampling
+          Q = 1/(2 * sinh (ln(2)/2 * BW * w0 / sin(w0)))
+
+      - 5000 Hz-n, 44100Hz, BW = 0.015 (eros vekony boost)  =>  Q ~ 88
+      - 500  Hz-n, 48000Hz, BW = 4 (nagyon lapos gorbe)     =>  Q ~ 0.3
+    */
 
     return { params.begin(), params.end() };
 }

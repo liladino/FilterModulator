@@ -18,6 +18,10 @@ public:
         b0 = _b0; b1 = _b1; b2 = _b2; a1 = _a1; a2 = _a2;
     }
     float processSample(float x);
+    void reset() {
+        x1 = 0; x2 = 0; y1 = 0; y2 = 0;
+    }
+
 private:
     float b0, b1, b2, a1, a2;
     float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
@@ -26,19 +30,26 @@ private:
 class Filter {
 public:
     virtual ~Filter() = default;
-    virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { this->sampleRate = sampleRate; calcCoeffs(); }
+    virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { 
+        this->sampleRate = sampleRate; 
+        calcAndSetCoeffs();
+    }
     virtual void processBlock(juce::AudioBuffer<float>& buffer);
-    virtual void calcCoeffs() = 0;
-    virtual void updateCoeffs() {
-        constexpr float EPSILON = 0.1f;
-        if (std::abs(cutoff - __cutoff) < EPSILON &&
-            std::abs(resonance - __resonance) < EPSILON) {
+    virtual void calcAndSetCoeffs() = 0;
+    virtual void updateCoeffs(bool force = false) {
+        constexpr float EPSILON = 0.05f;
+        if (!force && 
+            std::abs(cutoff - __cutoff) < EPSILON &&
+            std::abs(resonance - __resonance) < EPSILON &&
+            std::abs(sampleRate - __sampleRate) < EPSILON) {
             return;
         }
         DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
         __cutoff = cutoff;
         __resonance = resonance;
-        calcCoeffs();
+        __sampleRate = sampleRate;
+
+        calcAndSetCoeffs();
     }
 
     void setCutoff(float freq) { cutoff = freq; }
@@ -54,18 +65,16 @@ protected:
     float __resonance = 0.707f;
 
     double sampleRate = 44100.0;
+    double __sampleRate = 44100.0;
 
-    QuadFilter qfilter1;
-    QuadFilter qfilter2;
+    std::vector<QuadFilter> qfilter1;
+    std::vector<QuadFilter> qfilter2;
 };
 
 class LowPassFilter : public Filter {
 public:
     LowPassFilter();
-    
-    //void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-    //void processBlock(juce::AudioBuffer<float>& buffer) override;
-    void calcCoeffs() override;
+    void calcAndSetCoeffs() override;
 private:
 };
 
@@ -73,9 +82,6 @@ private:
 class HighPassFilter : public Filter {
 public:
     HighPassFilter();
-    
-    //void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-    //void processBlock(juce::AudioBuffer<float>& buffer) override;
-    void calcCoeffs() override;
+    void calcAndSetCoeffs() override;
 private:
 };

@@ -35,10 +35,7 @@ public:
 
     void processBlock(juce::AudioBuffer<float>& buffer);
 
-
     enum class FilterMode { LowPass, HighPass };
-
-    void changeFilterMode() { (fmode == FilterMode::LowPass ? setFilterMode(FilterMode::LowPass) : setFilterMode(FilterMode::HighPass)); }
 
     void setFilterMode(FilterMode newMode) { 
         fmode = newMode; 
