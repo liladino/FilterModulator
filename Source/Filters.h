@@ -27,7 +27,7 @@ class Filter {
 public:
     virtual ~Filter() = default;
     virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { this->sampleRate = sampleRate; calcCoeffs(); }
-    virtual void processBlock(juce::AudioBuffer<float>& buffer) = 0;
+    virtual void processBlock(juce::AudioBuffer<float>& buffer);
     virtual void calcCoeffs() = 0;
     virtual void updateCoeffs() {
         constexpr float EPSILON = 0.1f;
@@ -64,7 +64,7 @@ public:
     LowPassFilter();
     
     //void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-    void processBlock(juce::AudioBuffer<float>& buffer) override;
+    //void processBlock(juce::AudioBuffer<float>& buffer) override;
     void calcCoeffs() override;
 private:
 };
@@ -75,7 +75,7 @@ public:
     HighPassFilter();
     
     //void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-    void processBlock(juce::AudioBuffer<float>& buffer) override;
+    //void processBlock(juce::AudioBuffer<float>& buffer) override;
     void calcCoeffs() override;
 private:
 };
