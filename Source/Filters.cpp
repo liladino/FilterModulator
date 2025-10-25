@@ -72,6 +72,11 @@ void LowPassFilter::calcCoeffs() {
 }
 
 HighPassFilter::HighPassFilter() {
+    updateCoeffs();
+}
+
+
+void HighPassFilter::calcCoeffs() {
     //forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063&ref_url=https%253A%252F%252Fchatgpt.com%252F
 
     float w0 = 2.0f * PI * cutoff / sampleRate;
@@ -98,10 +103,4 @@ HighPassFilter::HighPassFilter() {
     qfilter2.setCoeffs(b0, b1, b2, a1, a2);
 
     DBG("LowPassFilter::calcCoeffs() called");
-    updateCoeffs();
-}
-
-
-void HighPassFilter::calcCoeffs() {
-
 }
