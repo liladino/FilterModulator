@@ -1,9 +1,9 @@
-# Build directories
-Build/
-build/
-Debug/
-Release/
-x64/ # if using 64-bit builds
+# ============================================
+# JUCE Projucer-managed VST (Visual Studio)
+# ============================================
+
+# Ignore build outputs
+Builds/
 *.obj
 *.o
 *.exe
@@ -13,29 +13,26 @@ x64/ # if using 64-bit builds
 *.exp
 *.idb
 
-# JUCE-generated and temporary files
-*.jucer.lock
+# Ignore JUCE generated code (can be regenerated from Projucer)
+JuceLibraryCode/
+
+# Ignore Visual Studio user-specific files
 *.user
+*.suo
 *.vcxproj.user
 *.VC.db
 *.VC.opendb
-
-# VS Solution and Project files (optional to ignore, but keep if sharing full VS solution)
-*.suo
-*.sln
 
 # OS junk
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Logs and caches
+# Logs, caches, swap files
 *.log
 *.cache
 *.tmp
 *.bak
-
-# Other editors swap files
 *.swp
 *.swo
 *~
