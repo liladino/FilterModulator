@@ -1,0 +1,36 @@
+@startuml
+
+class FilterEngine {
+    prepareToPlay(sampleRate, samplesPerBlock)
+    processBlock(buffer)
+    setFilterMode(newMode)
+}
+abstract Filter {
+    prepareToPlay(sampleRate, samplesPerBlock)
+    processBlock(buffer)
+    updateCoeffs() 
+}
+
+class LowPass
+class HighPass
+class QuadFilter {
+    setCoeffs(b0, b1, b2, a1, a2)
+    processSample(x)
+    reset()
+}
+abstract Modulator
+
+class FilterModulatorAudioProcessorEditor 
+class FilterModulatorAudioProcessor
+
+FilterModulatorAudioProcessorEditor o-- FilterModulatorAudioProcessor
+FilterModulatorAudioProcessor "1" *-- "1" FilterEngine
+Filter <|-- HighPass
+Filter <|-- LowPass
+FilterEngine "1" *-- "1" Filter
+FilterEngine "1" *-- "1" Modulator
+Filter "1" *-- "1..*" QuadFilter
+
+
+
+@endum

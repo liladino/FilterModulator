@@ -35,7 +35,6 @@ public:
         calcAndSetCoeffs();
     }
     virtual void processBlock(juce::AudioBuffer<float>& buffer);
-    virtual void calcAndSetCoeffs() = 0;
     virtual void updateCoeffs(bool force = false) {
         constexpr float EPSILON = 0.05f;
         if (!force && 
@@ -58,6 +57,8 @@ public:
     float getResonance() { return resonance; }
 
 protected:
+    virtual void calcAndSetCoeffs() = 0;
+
     float cutoff = 1000.0f;
     float resonance = 0.707f;
     
