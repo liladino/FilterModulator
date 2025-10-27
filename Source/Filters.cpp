@@ -27,12 +27,12 @@ const float PI = 3.14159265358f;
 void Filter::processBlock(juce::AudioBuffer<float>& buffer) {
     int numChannels = buffer.getNumChannels();
 
-    if (qfilter1.size() != numChannels) {
-        qfilter1.resize(numChannels);
-        qfilter2.resize(numChannels);
+    if (qfilters[0].size() != numChannels) {
+        qfilters[0].resize(numChannels);
+        qfilters[1].resize(numChannels);
 
-        for (auto& f : qfilter1) f.reset();
-        for (auto& f : qfilter2) f.reset();
+        for (auto& f : qfilters[0]) f.reset();
+        for (auto& f : qfilters[1]) f.reset();
 
         DBG("Filter resized for " << numChannels << " channels.");
 
@@ -44,8 +44,8 @@ void Filter::processBlock(juce::AudioBuffer<float>& buffer) {
 
     for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
         auto* samples = buffer.getWritePointer(channel);
-        auto& stage1 = qfilter1[channel];
-        auto& stage2 = qfilter2[channel];
+        auto& stage1 = qfilters[0][channel];
+        auto& stage2 = qfilters[1][channel];
 
         for (int n = 0; n < buffer.getNumSamples(); ++n) {
             float s = samples[n];
@@ -60,16 +60,20 @@ LowPassFilter::LowPassFilter() {
     updateCoeffs();
 }
 
-void LowPassFilter::calcAndSetCoeffs() {
-    //forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063&ref_url=https%253A%252F%252Fchatgpt.com%252F
+void Filter::calcAndSetCoeffs() {
+    //szurok egyutthato szamolas forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063
 
     float w0 = 2.0f * PI * cutoff / sampleRate;
     float cosw0 = cos(w0);
     float sinw0 = sin(w0);
 
-    //a rezonancia gyoke, mert kaszkadositok 2 masodfoku szurot
-    float alpha = sinw0 / (2.0f * sqrt(resonance));
+    float alpha1 = sinw0 / (2.0f * Q1 * resonance);
+    float alpha2 = sinw0 / (2.0f * Q2 * resonance);
+    setFilterCoeffs(cosw0, alpha1, 0);
+    setFilterCoeffs(cosw0, alpha2, 1);
+}
 
+void LowPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index){
     float b0 = (1 - cosw0) / 2;
     float b1 = 1 - cosw0;
     float b2 = (1 - cosw0) / 2;
@@ -83,31 +87,18 @@ void LowPassFilter::calcAndSetCoeffs() {
     a1 /= a0;
     a2 /= a0;
 
-    for (auto& x : qfilter1) {
+    for (auto& x : qfilters[index]) {
         x.setCoeffs(b0, b1, b2, a1, a2);
     }
-    for (auto& x : qfilter2) {
-        x.setCoeffs(b0, b1, b2, a1, a2);
-    }
-    
-    DBG("LowPassFilter::calcAndSetCoeffs() called");
+
+    DBG("LowPassFilter::setFilterCoeffs() called");
 }
 
 HighPassFilter::HighPassFilter() {
     updateCoeffs();
 }
 
-
-void HighPassFilter::calcAndSetCoeffs() {
-    //forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063&ref_url=https%253A%252F%252Fchatgpt.com%252F
-
-    float w0 = 2.0f * PI * cutoff / sampleRate;
-    float cosw0 = cos(w0);
-    float sinw0 = sin(w0);
-
-    //a rezonancia gyoke, mert kaszkadositok 2 masodfoku szurot
-    float alpha = sinw0 / (2.0f * sqrt(resonance));
-
+void HighPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index) {
     float b0 = (1 + cosw0) / 2;
     float b1 = -(1 + cosw0);
     float b2 = (1 + cosw0) / 2;
@@ -121,12 +112,9 @@ void HighPassFilter::calcAndSetCoeffs() {
     a1 /= a0;
     a2 /= a0;
 
-    for (auto& x : qfilter1) {
-        x.setCoeffs(b0, b1, b2, a1, a2);
-    }
-    for (auto& x : qfilter2) {
+    for (auto& x : qfilters[index]) {
         x.setCoeffs(b0, b1, b2, a1, a2);
     }
 
-    DBG("HighPassFilter::calcAndSetCoeffs() called");
+    DBG("HighPassFilter::setFilterCoeffs() called");
 }

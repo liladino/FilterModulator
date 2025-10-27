@@ -57,7 +57,10 @@ public:
     float getResonance() { return resonance; }
 
 protected:
-    virtual void calcAndSetCoeffs() = 0;
+    // Butterworth 4edfoku szuro alapertekek
+    // https://www.earlevel.com/main/2016/09/29/cascading-filters/
+    const float Q1 = 0.541196f;
+    const float Q2 = 1.306563f;
 
     float cutoff = 1000.0f;
     float resonance = 0.707f;
@@ -68,14 +71,16 @@ protected:
     double sampleRate = 44100.0;
     double __sampleRate = 44100.0;
 
-    std::vector<QuadFilter> qfilter1;
-    std::vector<QuadFilter> qfilter2;
+    std::array<std::vector<QuadFilter>, 2> qfilters;
+
+    virtual void calcAndSetCoeffs();
+    virtual void setFilterCoeffs(float cosw0, float alpha, size_t index) = 0;
 };
 
 class LowPassFilter : public Filter {
 public:
     LowPassFilter();
-    void calcAndSetCoeffs() override;
+    void setFilterCoeffs(float cosw0, float alpha, size_t index) override;
 private:
 };
 
@@ -83,6 +88,6 @@ private:
 class HighPassFilter : public Filter {
 public:
     HighPassFilter();
-    void calcAndSetCoeffs() override;
+    void setFilterCoeffs(float cosw0, float alpha, size_t index) override;
 private:
 };

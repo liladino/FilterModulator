@@ -22,18 +22,18 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
-        juce::NormalisableRange{ 0.3f, 88.f, 0.0005f, 0.2f }, 0.707f));
+        juce::NormalisableRange{ 0.5f, 4.f, 0.0005f }, 1.f));
 
     /*
-    Rezonancia hatarok:
-    
-      - a Texas Instr keplete alapjan: 
-          BW = bandwidth in octave
-          w0 = 2pi * cutoff / sampling
-          Q = 1/(2 * sinh (ln(2)/2 * BW * w0 / sin(w0)))
+    Rezonancia:
+        egy skalar szorzo, ami beallitja, hogy a ket biquad szuro 
+        Q1 es Q2 ertekeit milyen s-sel szorozzuk (ref. Matlab).
 
-      - 5000 Hz-n, 44100Hz, BW = 0.015 (eros vekony boost)  =>  Q ~ 88
-      - 500  Hz-n, 48000Hz, BW = 4 (nagyon lapos gorbe)     =>  Q ~ 0.3
+        Q1 = 0.5411961
+        Q2 = 1.306563
+
+        (4edfoku kaszkados Butterwoth szuro ertekei)
+        https://www.earlevel.com/main/2016/09/29/cascading-filters/
     */
 
     return { params.begin(), params.end() };
