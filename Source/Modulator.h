@@ -16,7 +16,7 @@ class Modulator {
 public:
     virtual ~Modulator() = default;
     virtual void prepareToPlay(double sampleRate) { this->sampleRate = sampleRate; }
-    virtual float getNextValue() = 0;  //in [0,1]
+    virtual float setCutoff(float cutoff) = 0;  //in [0,1]
     void setRate(float rateHz);
     void syncToBPM(double bpm);
 
@@ -33,7 +33,7 @@ public:
     enum WaveType { Sine, Triangle, Square };
     void setWaveType(WaveType type);
     void setDepth(float depthAmount);
-    float getNextValue() override;
+    float setCutoff(float cutoff) override;
 
 private:
     //juce::dsp::Oscillator<float> osc;  
@@ -45,7 +45,7 @@ class StepSequencer : public Modulator {
 public:
     void setSteps(const std::array<float, 16>& values);
     void setNumActiveSteps(int n);
-    float getNextValue() override;
+    float setCutoff(float cutoff) override;
 
 private:
     std::array<float, 16> stepValues{};

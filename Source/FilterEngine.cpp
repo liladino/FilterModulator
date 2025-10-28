@@ -12,8 +12,7 @@
 
 
 void FilterEngine::processBlock(juce::AudioBuffer<float>& buffer) {
-    //auto modValue = modulator->getNextValue();
-    //float modcutoff = cutoff * modValue;
+    //float modcutoff = modulator->getCutoff();
 
     filter->setCutoff(cutoff == nullptr ? 1000.0f : cutoff->load());
     filter->setResonance(resonance == nullptr ? 1.0f : resonance->load());

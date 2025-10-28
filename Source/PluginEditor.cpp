@@ -15,7 +15,7 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
 
     setupSlider(cutoffFrequencySlider, cutoffFrequencyLabel, cutoffFrequencyAttachment, vts, "cutoff");
 
-    setupSlider(resonanceSlider, resonanceLabel, resonanceAttachment, vts, "resonance");
+    setupKnob(resonanceSlider, resonanceLabel, resonanceAttachment, vts, "resonance");
 
     setupButton(highpassButton, highpassButtonLabel, highpassAttachment, vts, "HpLpMode");
     vts.addParameterListener("HpLpMode", &audioProcessor);
@@ -30,7 +30,18 @@ void FilterModulatorAudioProcessorEditor::setupSlider(juce::Slider& slider, juce
         juce::AudioProcessorValueTreeState& vts, const juce::String& paramID) {
 
     addAndMakeVisible(slider);
-    slider.setSliderStyle(juce::Slider::LinearVertical);
+    slider.setSliderStyle(juce::Slider::LinearHorizontal);
+    attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, paramID, slider);
+
+    addLabel(label, vts, paramID);
+}
+
+void FilterModulatorAudioProcessorEditor::setupKnob(juce::Slider& slider, juce::Label& label, 
+        std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& attachment,
+        juce::AudioProcessorValueTreeState& vts, const juce::String& paramID) {
+
+    addAndMakeVisible(slider);
+    slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, paramID, slider);
 
     addLabel(label, vts, paramID);

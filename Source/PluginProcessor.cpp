@@ -22,7 +22,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
-        juce::NormalisableRange{ 0.5f, 4.f, 0.0005f }, 1.f));
+        juce::NormalisableRange{ 0.5f, 5.f, 0.0005f, 0.32f }, 1.f));
 
     /*
     Rezonancia:
@@ -30,7 +30,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         Q1 es Q2 ertekeit milyen s-sel szorozzuk (ref. Matlab).
 
         Q1 = 0.5411961
-        Q2 = 1.306563
+        Q2 = 1.3065630
 
         (4edfoku kaszkados Butterwoth szuro ertekei)
         https://www.earlevel.com/main/2016/09/29/cascading-filters/
@@ -40,8 +40,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 }
 
 void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID, float newValue) {
-    if (paramID == "HpLpMode")
-    {
+    if (paramID == "HpLpMode") {
         if (newValue < 0.5f) {
             engine.setFilterMode(FilterEngine::FilterMode::LowPass);
         }

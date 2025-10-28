@@ -30,7 +30,7 @@ public:
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) {
         filter->prepareToPlay(sampleRate, samplesPerBlock);
-        //modulator->prepare(sampleRate);
+        //modulator->prepare(sampleRate, samplesPerBlock);
     }
 
     void processBlock(juce::AudioBuffer<float>& buffer);

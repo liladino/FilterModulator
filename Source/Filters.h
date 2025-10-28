@@ -59,6 +59,7 @@ public:
 protected:
     // Butterworth 4edfoku szuro alapertekek
     // https://www.earlevel.com/main/2016/09/29/cascading-filters/
+
     const float Q1 = 0.541196f;
     const float Q2 = 1.306563f;
 

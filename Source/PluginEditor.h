@@ -28,6 +28,9 @@ private:
     void setupSlider(juce::Slider& slider, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& attachment,
         juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
 
+    void setupKnob(juce::Slider& slider, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& attachment,
+        juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
+
     void setupButton(juce::Button& button, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& attachment,
         juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
 
