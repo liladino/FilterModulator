@@ -13,16 +13,20 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "cutoff", "Cutoff",
-        juce::NormalisableRange{ 20.f, 20000.f, 0.1f, 0.2f }, 500.f));
-
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         "HpLpMode", "Highpass", false));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
         juce::NormalisableRange{ 0.5f, 5.f, 0.0005f, 0.32f }, 1.f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "cutoff", "Cutoff",
+        juce::NormalisableRange{ 20.f, 20000.f, 0.1f, 0.2f }, 500.f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "modswitch", "Modulator switch",
+        juce::NormalisableRange{ 0.f, 2.f, 1.f }, 0.f));
 
     /*
     Rezonancia:

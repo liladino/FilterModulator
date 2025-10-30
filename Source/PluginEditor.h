@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "CustomUI.h"
 
 //==============================================================================
 /**
@@ -34,14 +35,13 @@ private:
     void setupButton(juce::Button& button, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& attachment,
         juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
 
-    void addLabel(juce::Label& label, juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
+    void addLabel(juce::Label& label, juce::AudioProcessorValueTreeState& vts, const juce::String& paramID, juce::Component& component);
 
     FilterModulatorAudioProcessor& audioProcessor;
 
-    juce::Slider cutoffFrequencySlider;
+    LabeledSlider cutoffFrequencySlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         cutoffFrequencyAttachment;
-    juce::Label cutoffFrequencyLabel;
 
     juce::Slider resonanceSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -52,6 +52,10 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
         highpassAttachment;
     juce::Label highpassButtonLabel;
+
+    LabeledSlider modulatorSwitch;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
+        modulatorSwitchAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessorEditor)
 };

@@ -4,6 +4,7 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginAAXCategory="1">
   <MAINGROUP id="qfJCrS" name="FilterModulator">
     <GROUP id="{6605B7E8-47BC-FEFC-22D0-7BF022A15525}" name="Source">
+      <FILE id="lMW1Em" name="CustomUI.h" compile="0" resource="0" file="Source/CustomUI.h"/>
       <FILE id="EVcbsQ" name="FilterEngine.cpp" compile="1" resource="0"
             file="Source/FilterEngine.cpp"/>
       <FILE id="kzqqOe" name="FilterEngine.h" compile="0" resource="0" file="Source/FilterEngine.h"/>

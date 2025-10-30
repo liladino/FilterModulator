@@ -11,9 +11,15 @@
 
 //==============================================================================
 FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterModulatorAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
-    : AudioProcessorEditor(&p), audioProcessor(p) {
+    : AudioProcessorEditor(&p), audioProcessor(p), cutoffFrequencySlider("Cutoff"), modulatorSwitch("Off    LFO    Seq", false) {
 
-    setupSlider(cutoffFrequencySlider, cutoffFrequencyLabel, cutoffFrequencyAttachment, vts, "cutoff");
+    addAndMakeVisible(cutoffFrequencySlider);
+    cutoffFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "cutoff", cutoffFrequencySlider.slider);
+    
+    addAndMakeVisible(modulatorSwitch);
+    modulatorSwitchAttachment= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "modswitch", modulatorSwitch.slider);
+
+    //setupSlider(cutoffFrequencySlider, cutoffFrequencyLabel, cutoffFrequencyAttachment, vts, "cutoff");
 
     setupKnob(resonanceSlider, resonanceLabel, resonanceAttachment, vts, "resonance");
 
@@ -31,9 +37,11 @@ void FilterModulatorAudioProcessorEditor::setupSlider(juce::Slider& slider, juce
 
     addAndMakeVisible(slider);
     slider.setSliderStyle(juce::Slider::LinearHorizontal);
+    slider.setTextBoxStyle(juce::Slider::TextBoxAbove, false, 60, 20);
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, paramID, slider);
 
-    addLabel(label, vts, paramID);
+    addLabel(label, vts, paramID, slider);
+
 }
 
 void FilterModulatorAudioProcessorEditor::setupKnob(juce::Slider& slider, juce::Label& label, 
@@ -42,9 +50,10 @@ void FilterModulatorAudioProcessorEditor::setupKnob(juce::Slider& slider, juce::
 
     addAndMakeVisible(slider);
     slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, paramID, slider);
 
-    addLabel(label, vts, paramID);
+    addLabel(label, vts, paramID, slider);
 }
 
 void FilterModulatorAudioProcessorEditor::setupButton(juce::Button& button, juce::Label& label, 
@@ -54,17 +63,22 @@ void FilterModulatorAudioProcessorEditor::setupButton(juce::Button& button, juce
     addAndMakeVisible(button);
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(vts, paramID, button);
 
-    addLabel(label, vts, paramID);
+    addLabel(label, vts, paramID, button);
 }
 
-void FilterModulatorAudioProcessorEditor::addLabel(juce::Label& label, juce::AudioProcessorValueTreeState& vts, const juce::String& paramID) {
+void FilterModulatorAudioProcessorEditor::addLabel(juce::Label& label, juce::AudioProcessorValueTreeState& vts, 
+    const juce::String& paramID, juce::Component& component) {
+    
     addAndMakeVisible(label);
+
     if (auto* param = vts.getParameter(paramID)) {
         label.setText(param->getName(64), juce::dontSendNotification);
     }
     else {
         label.setText(paramID, juce::dontSendNotification);
     }
+
+    label.attachToComponent(&component, true);
 }
 
 
@@ -88,14 +102,12 @@ void FilterModulatorAudioProcessorEditor::resized()
 
     grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)) };
     grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)) };
-
+    
     grid.items = {
-        juce::GridItem(highpassButtonLabel),
-        juce::GridItem(resonanceLabel),
-        juce::GridItem(cutoffFrequencyLabel),
         juce::GridItem(highpassButton),
         juce::GridItem(resonanceSlider),
-        juce::GridItem(cutoffFrequencySlider)
+        juce::GridItem(cutoffFrequencySlider),
+        juce::GridItem(modulatorSwitch)
     };
 
     grid.rowGap = juce::Grid::Px(10);
