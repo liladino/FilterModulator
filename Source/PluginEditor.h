@@ -26,12 +26,7 @@ public:
     void resized() override;
 
 private:
-    void setupSlider(juce::Slider& slider, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& attachment,
-        juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
-
-    void setupKnob(juce::Slider& slider, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& attachment,
-        juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
-
+    //Ez is felesleges
     void setupButton(juce::Button& button, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& attachment,
         juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
 
@@ -43,10 +38,9 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         cutoffFrequencyAttachment;
 
-    juce::Slider resonanceSlider;
+    LabeledSlider resonanceSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         resonanceAttachment;
-    juce::Label resonanceLabel;
 
     juce::ToggleButton highpassButton;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
@@ -56,6 +50,9 @@ private:
     LabeledSlider modulatorSwitch;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         modulatorSwitchAttachment;
+
+    Sequencer sequencerKnobs;
+    RateSetting rate;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessorEditor)
 };
