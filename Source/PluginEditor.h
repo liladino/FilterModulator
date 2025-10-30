@@ -51,8 +51,9 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         modulatorSwitchAttachment;
 
-    Sequencer sequencerKnobs;
+    Sequencer sequencerUI;
     RateSetting rate;
+    LFOModulator modulatorUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessorEditor)
 };

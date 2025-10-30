@@ -26,11 +26,12 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "resonance", resonanceSlider.slider);
 
     resonanceSlider.slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    resonanceSlider.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+    //resonanceSlider.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
 
     //setupSlider(cutoffFrequencySlider, cutoffFrequencyLabel, cutoffFrequencyAttachment, vts, "cutoff");
 
-    addAndMakeVisible(sequencerKnobs);
+    addAndMakeVisible(sequencerUI);
+    addAndMakeVisible(modulatorUI);
     addAndMakeVisible(rate);
 
     setupButton(highpassButton, highpassButtonLabel, highpassAttachment, vts, "HpLpMode");
@@ -87,22 +88,23 @@ void FilterModulatorAudioProcessorEditor::resized()
 
     grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
         , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1))
+        , juce::Grid::TrackInfo(juce::Grid::Fr(3))
         , juce::Grid::TrackInfo(juce::Grid::Fr(1)) 
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1)) 
+        //, juce::Grid::TrackInfo(juce::Grid::Fr(2)) 
     };
     grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
         , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1)) 
+        , juce::Grid::TrackInfo(juce::Grid::Fr(3)) 
     };
     
     grid.items = {
         juce::GridItem(highpassButton),
         juce::GridItem(resonanceSlider),
-        juce::GridItem(cutoffFrequencySlider).withArea(1, 3, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(cutoffFrequencySlider).withArea(1, 3, juce::GridItem::Span(1), juce::GridItem::Span(1)),
         juce::GridItem(rate),
-        juce::GridItem(modulatorSwitch).withArea(2, 1, juce::GridItem::Span(1), juce::GridItem::Span(3)),
-        juce::GridItem(sequencerKnobs).withArea(2, 4, juce::GridItem::Span(2), juce::GridItem::Span(2))
+        juce::GridItem(modulatorSwitch).withArea(2, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(modulatorUI).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(sequencerUI).withArea(2, 3, juce::GridItem::Span(2), juce::GridItem::Span(2))
     };
 
     grid.rowGap = juce::Grid::Px(10);
@@ -110,6 +112,6 @@ void FilterModulatorAudioProcessorEditor::resized()
     grid.justifyContent = juce::Grid::JustifyContent::center;
     grid.alignContent = juce::Grid::AlignContent::center;
 
-    grid.performLayout(getLocalBounds());
+    grid.performLayout(getLocalBounds().reduced(10));
     
 }

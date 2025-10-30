@@ -42,6 +42,7 @@ struct LabeledSlider : juce::Component {
 
         if (textbox) {
             label.setJustificationType(juce::Justification::left);
+            //label.setJustificationType(juce::Justification::bottomLeft);
             
             slider.setBounds(bounds);
             juce::Rectangle<int> labelArea = bounds.withTrimmedTop(0).withHeight(20);
@@ -52,7 +53,7 @@ struct LabeledSlider : juce::Component {
         else {
             label.setJustificationType(juce::Justification::centred);
 
-            slider.setBounds(bounds);
+            slider.setBounds(bounds.withTrimmedTop(20));
 
             juce::Rectangle<int> labelArea = bounds.withTrimmedTop(0).withHeight(20);
             //labelArea.translate(-80, 0);
@@ -109,6 +110,44 @@ struct Sequencer : juce::Component
 
         for (auto& slider : freqKnobs)
             grid.items.add(juce::GridItem(slider));
+
+        grid.performLayout(getLocalBounds());
+    }
+};
+
+struct LFOModulator : juce::Component
+{
+    std::array<juce::ToggleButton, 4> waveForm;
+    LabeledSlider width;
+    LFOModulator() : width("LFO width", true)
+    {
+        for (auto& button : waveForm)
+        {
+            button.setRadioGroupId(1, juce::dontSendNotification);
+            addAndMakeVisible(button);
+        }
+        addAndMakeVisible(width);
+    }
+
+    void resized() override
+    {
+        juce::Grid grid;
+        grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
+            , juce::Grid::TrackInfo(juce::Grid::Fr(1))
+        };
+        grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
+            , juce::Grid::TrackInfo(juce::Grid::Fr(1))
+            , juce::Grid::TrackInfo(juce::Grid::Fr(1))
+        };
+        grid.rowGap = juce::Grid::Px(10);
+        grid.columnGap = juce::Grid::Px(10);
+
+        grid.items.add(
+            juce::GridItem(width).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2))
+        );
+
+        for (auto& button : waveForm)
+            grid.items.add(juce::GridItem(button));
 
         grid.performLayout(getLocalBounds());
     }
