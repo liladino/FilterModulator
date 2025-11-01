@@ -26,27 +26,24 @@ public:
     void resized() override;
 
 private:
-    //Ez is felesleges
-    void setupButton(juce::Button& button, juce::Label& label, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& attachment,
-        juce::AudioProcessorValueTreeState& vts, const juce::String& paramID);
-
-    void addLabel(juce::Label& label, juce::AudioProcessorValueTreeState& vts, const juce::String& paramID, juce::Component& component);
-
     FilterModulatorAudioProcessor& audioProcessor;
 
     LabeledSlider cutoffFrequencySlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         cutoffFrequencyAttachment;
 
-    LabeledSlider resonanceSlider;
+    LabeledKnob resonanceSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         resonanceAttachment;
 
-    juce::ToggleButton highpassButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
+    LpHpSwitch highpassSwitch;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         highpassAttachment;
-    juce::Label highpassButtonLabel;
 
+    //juce::ToggleButton highpassButton;
+    //std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
+    //    highpassAttachment;
+    
     LabeledSlider modulatorSwitch;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         modulatorSwitchAttachment;

@@ -13,8 +13,9 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterBool>(
-        "HpLpMode", "Highpass", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "HpLpMode", "Highpass",
+        juce::NormalisableRange{ 0.f, 1.f, 1.f }, 0.f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",

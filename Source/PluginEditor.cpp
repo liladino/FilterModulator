@@ -13,8 +13,8 @@
 FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterModulatorAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
         : AudioProcessorEditor(&p), audioProcessor(p), 
         cutoffFrequencySlider("Cutoff"), 
-        modulatorSwitch("Off    LFO    Seq", false), 
-        resonanceSlider("Resonance", false) {
+        modulatorSwitch("LFO", false, false, "Off", "Seq"),
+        resonanceSlider("Resonance") {
 
     addAndMakeVisible(cutoffFrequencySlider);
     cutoffFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "cutoff", cutoffFrequencySlider.slider);
@@ -23,50 +23,22 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     modulatorSwitchAttachment= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "modswitch", modulatorSwitch.slider);
     
     addAndMakeVisible(resonanceSlider);
-    resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "resonance", resonanceSlider.slider);
-
-    resonanceSlider.slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    //resonanceSlider.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+    resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "resonance", resonanceSlider.knob);
 
     //setupSlider(cutoffFrequencySlider, cutoffFrequencyLabel, cutoffFrequencyAttachment, vts, "cutoff");
 
     addAndMakeVisible(sequencerUI);
+    addAndMakeVisible(highpassSwitch);
     addAndMakeVisible(modulatorUI);
     addAndMakeVisible(rate);
 
-    setupButton(highpassButton, highpassButtonLabel, highpassAttachment, vts, "HpLpMode");
     vts.addParameterListener("HpLpMode", &audioProcessor);
+    highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
 
-    setSize(600, 600);
+    setSize(800, 600);
     //setResizable(false, false);
     setResizable(true, true);
 }
-
-void FilterModulatorAudioProcessorEditor::setupButton(juce::Button& button, juce::Label& label, 
-        std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& attachment,
-        juce::AudioProcessorValueTreeState& vts, const juce::String& paramID) {
-
-    addAndMakeVisible(button);
-    attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(vts, paramID, button);
-
-    addLabel(label, vts, paramID, button);
-}
-
-void FilterModulatorAudioProcessorEditor::addLabel(juce::Label& label, juce::AudioProcessorValueTreeState& vts,
-    const juce::String& paramID, juce::Component& component) {
-    
-    addAndMakeVisible(label);
-
-    if (auto* param = vts.getParameter(paramID)) {
-        label.setText(param->getName(64), juce::dontSendNotification);
-    }
-    else {
-        label.setText(paramID, juce::dontSendNotification);
-    }
-
-    label.attachToComponent(&component, false);
-}
-
 
 FilterModulatorAudioProcessorEditor::~FilterModulatorAudioProcessorEditor()
 {
@@ -88,8 +60,8 @@ void FilterModulatorAudioProcessorEditor::resized()
 
     grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
         , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(3))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1)) 
+        , juce::Grid::TrackInfo(juce::Grid::Fr(4))
+        , juce::Grid::TrackInfo(juce::Grid::Fr(2)) 
         //, juce::Grid::TrackInfo(juce::Grid::Fr(2)) 
     };
     grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
@@ -98,7 +70,7 @@ void FilterModulatorAudioProcessorEditor::resized()
     };
     
     grid.items = {
-        juce::GridItem(highpassButton),
+        juce::GridItem(highpassSwitch),
         juce::GridItem(resonanceSlider),
         juce::GridItem(cutoffFrequencySlider).withArea(1, 3, juce::GridItem::Span(1), juce::GridItem::Span(1)),
         juce::GridItem(rate),
