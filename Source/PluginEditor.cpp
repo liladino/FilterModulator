@@ -33,6 +33,9 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     addAndMakeVisible(rate);
 
     vts.addParameterListener("HpLpMode", &audioProcessor);
+    vts.addParameterListener("cutoff", &audioProcessor);
+    vts.addParameterListener("resonance", &audioProcessor);
+    vts.addParameterListener("modswitch", &audioProcessor);
     highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
 
     setSize(800, 600);

@@ -58,10 +58,20 @@ public:
 
 protected:
     // Butterworth 4edfoku szuro alapertekek
-    // https://www.earlevel.com/main/2016/09/29/cascading-filters/
-
     const float Q1 = 0.541196f;
     const float Q2 = 1.306563f;
+
+    /*
+    Rezonancia:
+        egy skalar szorzo, ami beallitja, hogy a ket biquad szuro
+        Q1 es Q2 ertekeit milyen s-sel szorozzuk (ref. Matlab).
+
+        Q1 = 0.5411961
+        Q2 = 1.3065630
+
+        (4edfoku kaszkados Butterwoth szuro ertekei)
+        https://www.earlevel.com/main/2016/09/29/cascading-filters/
+    */
 
     float cutoff = 1000.0f;
     float resonance = 0.707f;

@@ -29,22 +29,30 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         "modswitch", "Modulator switch",
         juce::NormalisableRange{ 0.f, 2.f, 1.f }, 0.f));
 
-    /*
-    Rezonancia:
-        egy skalar szorzo, ami beallitja, hogy a ket biquad szuro 
-        Q1 es Q2 ertekeit milyen s-sel szorozzuk (ref. Matlab).
+    for (int i = 0; i < 16; i++) {
+        std::stringstream idss, namess;
+        idss << "seqMod";
+        idss << std::setw(2) << std::setfill('0') << i;
+        namess << "Sequencer" << i;
 
-        Q1 = 0.5411961
-        Q2 = 1.3065630
+        std::string id, name;
+        idss >> id;
+        namess >> name;
 
-        (4edfoku kaszkados Butterwoth szuro ertekei)
-        https://www.earlevel.com/main/2016/09/29/cascading-filters/
-    */
+        DBG(id);
+        DBG(name);
+
+        params.push_back(std::make_unique<juce::AudioParameterFloat>(
+            id, name,
+            juce::NormalisableRange{ 20.f, 20000.f, 0.1f, 0.2f }, 500.f));
+    }
+
 
     return { params.begin(), params.end() };
 }
 
 void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID, float newValue) {
+    DBG("parameterChanged() called ");
     if (paramID == "HpLpMode") {
         if (newValue < 0.5f) {
             engine.setFilterMode(FilterEngine::FilterMode::LowPass);
@@ -52,7 +60,29 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
         else {
             engine.setFilterMode(FilterEngine::FilterMode::HighPass);
         }
-        DBG("parameterChanged() called Highpass/lowpass");
+        DBG("Highpass / lowpass");
+    }
+    else if (paramID == "cutoff") {
+        engine.setCutoff(newValue);
+        DBG("cutoff");
+    }
+    else if (paramID == "resonance") {
+        engine.setResonance(newValue);
+        DBG("resonance");
+    }
+    else if (paramID == "modswitch") {
+        if (newValue < 0.5f) {
+            engine.setModulator(FilterEngine::ModulatorMode::Off);
+            DBG("modulator off");
+        }
+        else if (newValue < 1.5f) {
+            engine.setModulator(FilterEngine::ModulatorMode::LFO);
+            DBG("modulator LFO");
+        }
+        else {
+            engine.setModulator(FilterEngine::ModulatorMode::Seq);
+            DBG("modulator seq");
+        }
     }
 }
 
@@ -63,9 +93,13 @@ FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
                 .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
         parameters(*this, nullptr, juce::Identifier("FilterModulatorPlugin"), createParameterLayout())
 {
-    engine.bindCutoff(parameters.getRawParameterValue("cutoff"));
-    engine.bindRes(parameters.getRawParameterValue("resonance"));
-    engine.bindHighpass(parameters.getRawParameterValue("resonance"));
+    engine.setFilterMode(FilterEngine::FilterMode::LowPass);
+    engine.setResonance(1.f);
+    engine.setCutoff(500.f);
+    engine.setModulator(FilterEngine::ModulatorMode::Off);
+
+    //engine.bindCutoff(parameters.getRawParameterValue("cutoff"));
+    //engine.bindRes(parameters.getRawParameterValue("resonance"));
 }
 
 FilterModulatorAudioProcessor::~FilterModulatorAudioProcessor()

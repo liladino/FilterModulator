@@ -40,10 +40,6 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         highpassAttachment;
 
-    //juce::ToggleButton highpassButton;
-    //std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
-    //    highpassAttachment;
-    
     LabeledSlider modulatorSwitch;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         modulatorSwitchAttachment;
