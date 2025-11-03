@@ -10,7 +10,13 @@
 
 #include "Modulator.h"
 
-void StepSequencer::prepareToPlay(double sampleRate, int samplesPerBlock) {
+StepSequencer::StepSequencer() {
+    for (int i = 0; i < 16; i++) stepValues[i] = 500.f;
+
+    samplesPerHalfCycle = static_cast<int>(0.5f * sampleRate / rate / numActiveSteps);
+}
+
+void StepSequencer::prepareToPlay(float sampleRate, int samplesPerBlock) {
     this->sampleRate = sampleRate;
     setRate(rate); //re-calculate samplesPerHalfCycle if sampleRate may have changed
 }
