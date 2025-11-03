@@ -24,7 +24,7 @@ float QuadFilter::processSample(float x)
 
 const float PI = 3.14159265358f;
 
-void Filter::processBlock(juce::AudioBuffer<float>& buffer) {
+void Filter::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) {
     int numChannels = buffer.getNumChannels();
 
     if (qfilters[0].size() != numChannels) {
@@ -36,18 +36,18 @@ void Filter::processBlock(juce::AudioBuffer<float>& buffer) {
 
         DBG("Filter resized for " << numChannels << " channels.");
 
-        updateCoeffs(true);
+        updateCoeffs(samplesThisTime, true);
     }
     else {
-        updateCoeffs();
+        updateCoeffs(samplesThisTime);
     }
 
-    for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
+    for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
         auto* samples = buffer.getWritePointer(channel);
         auto& stage1 = qfilters[0][channel];
         auto& stage2 = qfilters[1][channel];
 
-        for (int n = 0; n < buffer.getNumSamples(); ++n) {
+        for (int n = numProcessed; n < numProcessed + samplesThisTime; n++) {
             float s = samples[n];
             s = stage1.processSample(s);
             s = stage2.processSample(s);
@@ -57,13 +57,13 @@ void Filter::processBlock(juce::AudioBuffer<float>& buffer) {
 }
 
 LowPassFilter::LowPassFilter() {
-    updateCoeffs();
+    updateCoeffs(64, true);
 }
 
 void Filter::calcAndSetCoeffs() {
     //szurok egyutthato szamolas forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063
 
-    float w0 = 2.0f * PI * cutoff / sampleRate;
+    float w0 = 2.0f * PI * __cutoff / sampleRate;
     float cosw0 = cos(w0);
     float sinw0 = sin(w0);
 
@@ -95,7 +95,7 @@ void LowPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index){
 }
 
 HighPassFilter::HighPassFilter() {
-    updateCoeffs();
+    updateCoeffs(64, true);
 }
 
 void HighPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index) {

@@ -12,6 +12,29 @@
 
 #include <JuceHeader.h>
 
+struct ParameterSmoother {
+    float value = 0.0f;
+    float target = 0.0f;
+    float coeff = 0.0f; // smoothing coefficient, 0..1
+
+    void reset(double sampleRate, float smoothingTimeSec) {
+        coeff = std::exp(-1.0f / (smoothingTimeSec * (float)sampleRate));
+    }
+
+    void setTarget(float t) { target = t; }
+
+    float getNextValue(int samples) {
+        float stepCoeff = std::pow(coeff, (float)samples);
+        value = target + stepCoeff * (value - target);
+        return value;
+    }
+
+    void setCurrentAndTargetValue(float v) {
+        value = target = v;
+    }
+};
+
+
 class QuadFilter {
 public:
     void setCoeffs(float _b0, float _b1, float _b2, float _a1, float _a2) {
@@ -31,11 +54,14 @@ class Filter {
 public:
     virtual ~Filter() = default;
     virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { 
+        cutoffSmoother.reset(sampleRate, 0.0075f);
+        cutoffSmoother.setCurrentAndTargetValue(cutoff);
+
         this->sampleRate = sampleRate; 
         calcAndSetCoeffs();
     }
-    virtual void processBlock(juce::AudioBuffer<float>& buffer);
-    virtual void updateCoeffs(bool force = false) {
+    virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime);
+    virtual void updateCoeffs(const int samplesThisTime, bool force = false) {
         constexpr float EPSILON = 0.05f;
         if (!force && 
             std::abs(cutoff - __cutoff) < EPSILON &&
@@ -43,15 +69,25 @@ public:
             std::abs(sampleRate - __sampleRate) < EPSILON) {
             return;
         }
+        if (force) {
+            __cutoff = cutoff;
+            cutoffSmoother.setCurrentAndTargetValue(cutoff);
+        }
+        else {
+            __cutoff = cutoffSmoother.getNextValue(samplesThisTime);
+        }
+        
         DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
-        __cutoff = cutoff;
         __resonance = resonance;
         __sampleRate = sampleRate;
 
         calcAndSetCoeffs();
     }
 
-    void setCutoff(float freq) { cutoff = freq; }
+    void setCutoff(float freq) { 
+        cutoff = freq;
+        cutoffSmoother.setTarget(freq);
+    }
     void setResonance(float q) { resonance = q; }
     float getCutoff() { return cutoff; }
     float getResonance() { return resonance; }
@@ -73,11 +109,13 @@ protected:
         https://www.earlevel.com/main/2016/09/29/cascading-filters/
     */
 
-    float cutoff = 1000.0f;
-    float resonance = 0.707f;
+    ParameterSmoother cutoffSmoother;
+
+    float cutoff = 500.0f;
+    float resonance = 1.f;
     
-    float __cutoff = 1000.0f;
-    float __resonance = 0.707f;
+    float __cutoff = 500.0f;
+    float __resonance = 1.f;
 
     double sampleRate = 44100.0;
     double __sampleRate = 44100.0;

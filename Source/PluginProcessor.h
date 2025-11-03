@@ -66,6 +66,8 @@ private:
     std::unique_ptr<HighPassFilter> HP;*/
 
     FilterEngine engine;
+
+    std::map<std::string, int> sequencerKnobIndexMap;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessor)

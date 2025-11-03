@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "CustomUI.h"
 
 static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
@@ -30,23 +31,21 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         juce::NormalisableRange{ 0.f, 2.f, 1.f }, 0.f));
 
     for (int i = 0; i < 16; i++) {
-        std::stringstream idss, namess;
-        idss << "seqMod";
-        idss << std::setw(2) << std::setfill('0') << i;
-        namess << "Sequencer" << i;
-
-        std::string id, name;
-        idss >> id;
-        namess >> name;
-
+        std::string id = Sequencer::knobNameBuilder("seqMod", i);
+        std::string name = Sequencer::knobNameBuilder("Sequencer", i);
+        
         DBG(id);
         DBG(name);
 
         params.push_back(std::make_unique<juce::AudioParameterFloat>(
             id, name,
             juce::NormalisableRange{ 20.f, 20000.f, 0.1f, 0.2f }, 500.f));
+        
     }
 
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "numberOfSteps", "# active",
+        juce::NormalisableRange{ 1.f, 16.f, 1.f }, 2.f));
 
     return { params.begin(), params.end() };
 }
@@ -84,6 +83,12 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
             DBG("modulator seq");
         }
     }
+    else if (sequencerKnobIndexMap.count(paramID.toStdString()) > 0) {
+        engine.setSequencerStep(sequencerKnobIndexMap[paramID.toStdString()], newValue);
+    }
+    else if (paramID == "numberOfSteps") {
+        engine.setSequencerNum(newValue);
+    }
 }
 
 //==============================================================================
@@ -98,6 +103,10 @@ FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
     engine.setCutoff(500.f);
     engine.setModulator(FilterEngine::ModulatorMode::Off);
 
+    for (int i = 0; i < 16; i++) {
+        std::string id = Sequencer::knobNameBuilder("seqMod", i);
+        sequencerKnobIndexMap[id] = i;
+    }
     //engine.bindCutoff(parameters.getRawParameterValue("cutoff"));
     //engine.bindRes(parameters.getRawParameterValue("resonance"));
 }

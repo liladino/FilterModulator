@@ -31,62 +31,24 @@ public:
     //void bindCutoff(std::atomic<float>* param) { cutoff = param; }
     //void bindRes(std::atomic<float>* param) { resonance = param; }
 
-    void prepareToPlay(double sampleRate, int samplesPerBlock) {
-        LP->prepareToPlay(sampleRate, samplesPerBlock);
-        HP->prepareToPlay(sampleRate, samplesPerBlock);
-        seq->prepareToPlay(sampleRate, samplesPerBlock);
-        //lfo->prepareToPlay(sampleRate, samplesPerBlock);
-    }
+    void prepareToPlay(double sampleRate, int samplesPerBlock);
 
-    void processBlock(juce::AudioBuffer<float>& buffer){
-        if (modulator != nullptr) {
-            setCutoff(modulator->setCutoff(cutoff));
-        }
-        
-        //filter->setCutoff(cutoff == nullptr ? 1000.0f : cutoff->load());
-        //filter->setResonance(resonance == nullptr ? 1.0f : resonance->load());
-
-        filter->processBlock(buffer);
-    }
+    void processBlock(juce::AudioBuffer<float>& buffer);
 
     enum class FilterMode { LowPass, HighPass };
     enum class ModulatorMode { Off, LFO, Seq};
 
-    void setFilterMode(FilterMode newMode) { 
-        fmode = newMode; 
-        if (fmode == FilterMode::LowPass) {
-            filter = LP.get();
-        }
-        else {
-            filter = HP.get();
-        }
-    }
+    void setFilterMode(FilterMode newMode);
 
-    void setModulator(ModulatorMode newMode) {
-        mmode = newMode; 
-        switch (mmode) {
-            case ModulatorMode::Off:
-                modulator = nullptr;
-                break;
-            case ModulatorMode::Seq:
-                modulator = seq.get();
-                break;
-            case ModulatorMode::LFO:
-                modulator = nullptr;
-                break;
-        }
-    }
+    void setModulator(ModulatorMode newMode);
 
-    void setResonance(float resonance) {
-        LP->setResonance(resonance);
-        HP->setResonance(resonance);
-    }
+    void setResonance(float resonance);
 
-    void setCutoff(float cutoff) {
-        LP->setCutoff(cutoff);
-        HP->setCutoff(cutoff);
-    }
+    void setCutoff(float cutoff);
 
+    void setSequencerStep(int index, float cutoff);
+
+    void setSequencerNum(int value);
 private:
     float cutoff, resonance; 
 

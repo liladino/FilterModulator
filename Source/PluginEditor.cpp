@@ -14,7 +14,11 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
         : AudioProcessorEditor(&p), audioProcessor(p), 
         cutoffFrequencySlider("Cutoff"), 
         modulatorSwitch("LFO", false, false, "Off", "Seq"),
-        resonanceSlider("Resonance") {
+        resonanceSlider("Resonance"),
+        sequencerUI(vts)
+    {
+
+    highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
 
     addAndMakeVisible(cutoffFrequencySlider);
     cutoffFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "cutoff", cutoffFrequencySlider.slider);
@@ -36,8 +40,9 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     vts.addParameterListener("cutoff", &audioProcessor);
     vts.addParameterListener("resonance", &audioProcessor);
     vts.addParameterListener("modswitch", &audioProcessor);
-    highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
-
+    
+    sequencerUI.addListener(vts, audioProcessor);
+    
     setSize(800, 600);
     //setResizable(false, false);
     setResizable(true, true);

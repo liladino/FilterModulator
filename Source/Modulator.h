@@ -17,14 +17,13 @@ class Modulator {
 public:
     virtual ~Modulator() = default;
     virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { this->sampleRate = sampleRate; }
-    virtual float setCutoff(float cutoff) = 0;  //in [0,1]
-    void setRate(float rateHz);
-    void syncToBPM(double bpm);
+    virtual float getModulatedCutoff(float cutoff, int samplesPerBlock) = 0;  
+    virtual void setRate(float rateHz) { rate = rateHz; }
+    //virtual void syncToBPM(double bpm) = 0;
 
 protected:
     double sampleRate = 44100.0;
-    float depth = 1.0f;
-    float rate = 1.0f;
+    float rate = 1.0f; //hz
 };
 
 
@@ -88,28 +87,42 @@ class Oscillator : public Modulator{
 public:
     void setWaveType(WaveGen::WaveType type);
     void setDepth(float depthAmount);
-    float setCutoff(float cutoff) override;
+    float getModulatedCutoff(float cutoff, int samplesPerBlock) override;
 
 private:
+    float depth = 1.0f;
     //juce::dsp::Oscillator<float> osc;  
 };
 
-
-
 class StepSequencer : public Modulator {
 public:
-    void setSteps(const std::array<float, 16>& values);
-    void setNumActiveSteps(int n);
-    float setCutoff(float cutoff) override {
-        return cutoff;
+    StepSequencer() {
+        for (int i = 0; i < 16; i++) stepValues[i] = 500.f;
+
+        samplesPerHalfCycle = static_cast<int>(0.5f * sampleRate / rate / numActiveSteps);
     }
 
-private:
-    std::array<float, 16> stepValues{};
-    int numActiveSteps = 16;
-    int currentStep = 0;
-    double phase = 0.0;
-    double stepRate = 1.0; 
+    void prepareToPlay(double sampleRate, int samplesPerBlock);
 
+    float getModulatedCutoff(float cutoff, int samplesPerBlock) override;
+    
+    void setRate(float rateHz) override;
+
+    void setFilter(int index, float cutoff);
+    
+    void setNumActiveSteps(int n);
+private:
+    void updateHalfCycle() {
+        samplesPerHalfCycle = static_cast<int>(0.5f * sampleRate / rate);
+    }
+
+    std::array<float, 16> stepValues{};
+
+    unsigned long long sampleCount = 0;
+
+    int numActiveSteps = 2;
+    int currentStep = 0;
+    float rate = 1.f; 
+    int samplesPerHalfCycle;
 };
 
