@@ -18,10 +18,42 @@ class QuadFilter {
     processSample(x)
     reset()
 }
-abstract Modulator
-
 class FilterModulatorAudioProcessorEditor 
 class FilterModulatorAudioProcessor
+
+abstract Modulator {
+    prepareToPlay(sampleRate, samplesPerBlock)
+    getModulatedCutoff(float cutoff, int samplesPerBlock)  
+    setRate(float rateHz)
+}
+
+class StepSequencer {
+    prepareToPlay(sampleRate, samplesPerBlock)
+    getModulatedCutoff(float cutoff, int samplesPerBlock)
+    setFilter(index, cutoff)
+    setNumActiveSteps(int n)
+}
+
+enum WaveType { 
+    Sin
+    Square
+    Triangle
+    Saw
+}
+
+class WaveGenerator {
+    prepareToPlay(sampleRate)
+    setFrequency(newFreq)
+    getNextValue(samplesPerBlock)
+    setWaveType(wt)
+}
+
+
+class Oscillator {
+    prepareToPlay(sampleRate, samplesPerBlock)
+    setWaveType(type)
+    setDepth(semitoneDepth)
+}
 
 FilterModulatorAudioProcessorEditor o-- FilterModulatorAudioProcessor
 FilterModulatorAudioProcessor "1" *-- "1" FilterEngine
@@ -30,7 +62,11 @@ Filter <|-- LowPass
 FilterEngine "1" *-- "1" Filter
 FilterEngine "1" *-- "1" Modulator
 Filter "1" *-- "1..*" QuadFilter
-
+Modulator <|-- StepSequencer
+Modulator <|-- Oscillator
+WaveGenerator *-- WaveType
+Oscillator *-- WaveGenerator
 
 
 @endum
+

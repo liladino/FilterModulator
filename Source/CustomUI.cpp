@@ -128,7 +128,7 @@ void LpHpSwitch::resized() {
 /*************
  * Sequencer *
  *************/
-Sequencer::Sequencer(juce::AudioProcessorValueTreeState& vts) : number("#", true, true) {
+Sequencer::Sequencer(juce::AudioProcessorValueTreeState& vts) : number("Active", true, true) {
     for (int i = 0; i < 16; i++) {
         std::string id = knobNameBuilder("seqMod", i);
         ids.insert(id);
