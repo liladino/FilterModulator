@@ -165,6 +165,7 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
         }
         else {
             listener->bpmChanged(0);
+            engine.setRate();
         }
     }
 }

@@ -79,10 +79,15 @@ void FilterEngine::setResonance(float resonance) {
     HP->setResonance(resonance);
 }
 
-
 void FilterEngine::setRate(float rateHz) {
     lfo->setRate(rateHz);
     seq->setRate(rateHz);
+    lastRate = rateHz;
+}
+
+void FilterEngine::setRate() {
+    lfo->setRate(lastRate);
+    seq->setRate(lastRate);
 }
 
 void FilterEngine::setCutoffInFiltersOnly(float cutoff) {

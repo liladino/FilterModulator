@@ -41,12 +41,14 @@ public:
     void setModWaveType(WaveGenerator::WaveType newMode);
     void setResonance(float resonance);
     void setRate(float rateHz);
+    void setRate();
     void setCutoff(float cutoff);
     void setSequencerStep(int index, float cutoff);
     void setSequencerNum(int value);
     void setLFOwidth(float value);
     void syncToBPM(float bpm);
 private:
+    float lastRate = 1;
     void setCutoffInFiltersOnly(float cutoff);
     float _cutoff; 
 
