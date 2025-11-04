@@ -90,23 +90,24 @@ private:
 };
 
 
-class Oscillator : public Modulator{
+class Oscillator : public Modulator {
 public:
     Oscillator() {
         depth = semitone;
         wgenerator.prepareToPlay(sampleRate);
     }
-    void prepareToPlay(float sampleRate, int samplesPerBlock) override { 
-        this->sampleRate = sampleRate; 
+    void prepareToPlay(float sampleRate, int samplesPerBlock) override {
+        this->sampleRate = sampleRate;
         wgenerator.prepareToPlay(sampleRate);
         wgenerator.setFrequency(rate);
     }
-    
+
     void setWaveType(WaveGenerator::WaveType type){}
     
     void setDepth(float semitoneDepth) {
         //depth = (2^(1/12))^semitoneDepth
         depth = pow(semitone, semitoneDepth);
+        DBG("depth = " << semitoneDepth << " multiplier: " << depth);
     }
 
     void setRate(float rateHz) { 

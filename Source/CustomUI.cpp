@@ -175,13 +175,19 @@ void Sequencer::addListener(juce::AudioProcessorValueTreeState& vts, FilterModul
  * LFOModulator *
  ****************/
 
-LFOModulator::LFOModulator() : width("LFO width", true) {
+LFOModulator::LFOModulator(juce::AudioProcessorValueTreeState& vts) : width("LFO width", true) {
     for (auto& button : waveForm)
     {
         button.setRadioGroupId(1, juce::dontSendNotification);
         addAndMakeVisible(button);
     }
+    widthAttachment =
+        std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "lfowidth", width.slider);
     addAndMakeVisible(width);
+}
+
+void LFOModulator::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
+    vts.addParameterListener("lfowidth", &audioProcessor);
 }
 
 void LFOModulator::resized() {

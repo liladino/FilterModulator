@@ -46,7 +46,7 @@ private:
 
     Sequencer sequencerUI;
     RateSetting rate;
-    LFOModulator modulatorUI;
+    LFOModulator oscillatorUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessorEditor)
 };

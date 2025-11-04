@@ -20,7 +20,7 @@ class FilterEngine {
 public:
     FilterEngine()
         : LP(std::make_unique<LowPassFilter>()), HP(std::make_unique<HighPassFilter>()),
-          seq(std::make_unique<StepSequencer>())
+          seq(std::make_unique<StepSequencer>()), lfo(std::make_unique<Oscillator>())
     {
         cutoff = 500;
         resonance = 1;
@@ -49,6 +49,8 @@ public:
     void setSequencerStep(int index, float cutoff);
 
     void setSequencerNum(int value);
+
+    void setLFOwidth(float value);
 private:
     float cutoff, resonance; 
 
@@ -57,7 +59,7 @@ private:
     std::unique_ptr<HighPassFilter> HP;
     
     Modulator* modulator;
-    //std::unique_ptr<Oscillator> lfo;
+    std::unique_ptr<Oscillator> lfo;
     std::unique_ptr<StepSequencer> seq;
 
     FilterMode fmode = FilterMode::LowPass;

@@ -30,6 +30,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         "modswitch", "Modulator switch",
         juce::NormalisableRange{ 0.f, 2.f, 1.f }, 0.f));
 
+    //Sequencer
     for (int i = 0; i < 16; i++) {
         std::string id = Sequencer::knobNameBuilder("seqMod", i);
         std::string name = Sequencer::knobNameBuilder("Sequencer", i);
@@ -46,6 +47,11 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "numberOfSteps", "# active",
         juce::NormalisableRange{ 1.f, 16.f, 1.f }, 2.f));
+
+    //Oscillator
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "lfowidth", "LFO width",
+        juce::NormalisableRange{ 1.f, 24.f, 1.f }, 7.f));
 
     return { params.begin(), params.end() };
 }
@@ -88,6 +94,9 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
     }
     else if (paramID == "numberOfSteps") {
         engine.setSequencerNum(newValue);
+    }
+    else if (paramID == "lfowidth") {
+        engine.setLFOwidth(newValue);
     }
 }
 

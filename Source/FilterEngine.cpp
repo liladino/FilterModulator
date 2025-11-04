@@ -64,7 +64,7 @@ void FilterEngine::setModulator(ModulatorMode newMode) {
         modulator = seq.get();
         break;
     case ModulatorMode::LFO:
-        modulator = nullptr;
+        modulator = lfo.get();
         break;
     }
 }
@@ -85,4 +85,9 @@ void FilterEngine::setSequencerStep(int index, float cutoff) {
 
 void FilterEngine::setSequencerNum(int value) {
     seq->setNumActiveSteps(value);
+}
+
+
+void FilterEngine::setLFOwidth(float value) {
+    lfo->setDepth(value);
 }

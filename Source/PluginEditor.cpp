@@ -15,7 +15,8 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
         cutoffFrequencySlider("Cutoff"), 
         modulatorSwitch("LFO", false, false, "Off", "Seq"),
         resonanceSlider("Resonance"),
-        sequencerUI(vts)
+        sequencerUI(vts),
+        oscillatorUI(vts)
     {
 
     highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
@@ -33,7 +34,7 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
 
     addAndMakeVisible(sequencerUI);
     addAndMakeVisible(highpassSwitch);
-    addAndMakeVisible(modulatorUI);
+    addAndMakeVisible(oscillatorUI);
     addAndMakeVisible(rate);
 
     vts.addParameterListener("HpLpMode", &audioProcessor);
@@ -42,6 +43,7 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     vts.addParameterListener("modswitch", &audioProcessor);
     
     sequencerUI.addListener(vts, audioProcessor);
+    oscillatorUI.addListener(vts, audioProcessor);
     
     setSize(800, 600);
     //setResizable(false, false);
@@ -83,7 +85,7 @@ void FilterModulatorAudioProcessorEditor::resized()
         juce::GridItem(cutoffFrequencySlider).withArea(1, 3, juce::GridItem::Span(1), juce::GridItem::Span(1)),
         juce::GridItem(rate),
         juce::GridItem(modulatorSwitch).withArea(2, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
-        juce::GridItem(modulatorUI).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(oscillatorUI).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
         juce::GridItem(sequencerUI).withArea(2, 3, juce::GridItem::Span(2), juce::GridItem::Span(2))
     };
 

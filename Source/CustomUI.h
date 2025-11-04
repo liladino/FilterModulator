@@ -81,7 +81,11 @@ struct Sequencer : juce::Component {
 struct LFOModulator : juce::Component {
     std::array<juce::ToggleButton, 4> waveForm;
     LabeledSlider width;
-    LFOModulator();
+    std::unique_ptr < juce::AudioProcessorValueTreeState::SliderAttachment>
+        widthAttachment;
+
+    LFOModulator(juce::AudioProcessorValueTreeState& vts);
 
     void resized() override;
+    void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
 };
