@@ -34,7 +34,7 @@ void FilterEngine::processBlock(juce::AudioBuffer<float>& buffer) {
         const int samplesThisTime = std::min(subBlockSize, totalSamples - numProcessed);
 
         if (modulator != nullptr) {
-            setCutoff(modulator->getModulatedCutoff(cutoff, samplesThisTime));
+            setCutoffInFiltersOnly(modulator->getModulatedCutoff(_cutoff, samplesThisTime));
         }
 
         filter->processBlock(buffer, numProcessed, samplesThisTime);
@@ -69,14 +69,32 @@ void FilterEngine::setModulator(ModulatorMode newMode) {
     }
 }
 
+void FilterEngine::setModWaveType(WaveGenerator::WaveType newMode) {
+    lfo->setWaveType(newMode);
+    DBG("WaveType " << newMode);
+}
+
 void FilterEngine::setResonance(float resonance) {
     LP->setResonance(resonance);
     HP->setResonance(resonance);
 }
 
-void FilterEngine::setCutoff(float cutoff) {
+
+void FilterEngine::setRate(float rateHz) {
+    lfo->setRate(rateHz);
+    seq->setRate(rateHz);
+}
+
+void FilterEngine::setCutoffInFiltersOnly(float cutoff) {
     LP->setCutoff(cutoff);
     HP->setCutoff(cutoff);
+
+    DBG(cutoff);
+}
+
+void FilterEngine::setCutoff(float cutoff) {
+    _cutoff = cutoff;
+    setCutoffInFiltersOnly(cutoff);
 }
 
 void FilterEngine::setSequencerStep(int index, float cutoff) {
@@ -87,7 +105,11 @@ void FilterEngine::setSequencerNum(int value) {
     seq->setNumActiveSteps(value);
 }
 
-
 void FilterEngine::setLFOwidth(float value) {
     lfo->setDepth(value);
+}
+
+void FilterEngine::syncToBPM(float bpm) {
+    lfo->syncToBPM(bpm);
+    seq->syncToBPM(bpm);
 }

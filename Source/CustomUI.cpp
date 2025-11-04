@@ -124,7 +124,6 @@ void LpHpSwitch::resized() {
 }
 
 
-
 /*************
  * Sequencer *
  *************/
@@ -176,11 +175,16 @@ void Sequencer::addListener(juce::AudioProcessorValueTreeState& vts, FilterModul
  ****************/
 
 LFOModulator::LFOModulator(juce::AudioProcessorValueTreeState& vts) : width("LFO width", true) {
-    for (auto& button : waveForm)
-    {
+    for (int i = 0; i < 4; i++) {
+        auto& button = waveFormButt[i];
         button.setRadioGroupId(1, juce::dontSendNotification);
+
+        waveFormButtAttachment[i] =
+            std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(vts, "wavebutton" + std::to_string(i), button);
+
         addAndMakeVisible(button);
     }
+    waveFormButt[0].setToggleState(true, juce::dontSendNotification);
     widthAttachment =
         std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "lfowidth", width.slider);
     addAndMakeVisible(width);
@@ -188,6 +192,8 @@ LFOModulator::LFOModulator(juce::AudioProcessorValueTreeState& vts) : width("LFO
 
 void LFOModulator::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
     vts.addParameterListener("lfowidth", &audioProcessor);
+    for (int i = 0; i < 4; i++)
+        vts.addParameterListener("wavebutton" + std::to_string(i), &audioProcessor);
 }
 
 void LFOModulator::resized() {
@@ -206,8 +212,9 @@ void LFOModulator::resized() {
         juce::GridItem(width).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2))
     );
 
-    for (auto& button : waveForm) {
+    for (auto& button : waveFormButt) {
         grid.items.add(juce::GridItem(button));
     }
     grid.performLayout(getLocalBounds());
 }
+

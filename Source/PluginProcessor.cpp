@@ -36,7 +36,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         std::string name = Sequencer::knobNameBuilder("Sequencer", i);
         
         DBG(id);
-        DBG(name);
+        //DBG(name);
 
         params.push_back(std::make_unique<juce::AudioParameterFloat>(
             id, name,
@@ -51,13 +51,47 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     //Oscillator
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "lfowidth", "LFO width",
-        juce::NormalisableRange{ 1.f, 24.f, 1.f }, 7.f));
+        juce::NormalisableRange{ 1.f, 24.f, 1.f }, 1.f));
+
+    for (int i = 0; i < 4; i++) {
+        std::string id = "wavebutton" + std::to_string(i);
+        std::string name = "wavebutton" + std::to_string(i);
+
+        DBG(id);
+
+        params.push_back(std::make_unique<juce::AudioParameterBool>(
+            id, name, i == 0));
+    }
+
+    //rate
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "rate", "Rate sec",
+        juce::NormalisableRange{ 0.5f, 5.f, 0.1f }, 1.f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        "syncBPM", "Sync BPM", false));
+
 
     return { params.begin(), params.end() };
 }
 
+float bpmSet(juce::AudioPlayHead* playHead) {
+    if (playHead == nullptr) {
+        return 0;
+    }
+    DBG("playhead non zero");
+    juce::AudioPlayHead::CurrentPositionInfo posInfo;
+
+    if (!(playHead->getCurrentPosition(posInfo))) {
+        return 0;
+    }
+
+    DBG("BPM " << posInfo.bpm);
+    return posInfo.bpm;
+}
+
 void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID, float newValue) {
-    DBG("parameterChanged() called ");
+    DBG("parameterChanged() called " << paramID);
     if (paramID == "HpLpMode") {
         if (newValue < 0.5f) {
             engine.setFilterMode(FilterEngine::FilterMode::LowPass);
@@ -98,7 +132,43 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
     else if (paramID == "lfowidth") {
         engine.setLFOwidth(newValue);
     }
+    else if (paramID.dropLastCharacters(1) == "wavebutton") {
+        switch (paramID.getLastCharacter()) {
+        case '1':
+            engine.setModWaveType(WaveGenerator::WaveType::Saw);
+            break;
+        case '2':
+            engine.setModWaveType(WaveGenerator::WaveType::Square);
+            break;
+        case '3':
+            engine.setModWaveType(WaveGenerator::WaveType::Triangle);
+            break;
+        default:
+            engine.setModWaveType(WaveGenerator::WaveType::Sin);
+            break;
+        }
+    }
+    else if (paramID == "rate") {
+        engine.setRate(1.f / newValue);
+    }
+    else if (paramID == "syncBPM") {
+        if (newValue > 0.5f) {
+            auto* playHead = getPlayHead();
+            float val = bpmSet(playHead);
+            listener->bpmChanged(val);
+            if (val > 1) {
+                engine.syncToBPM(val);
+            }
+            else {
+                engine.syncToBPM(60); //1 Hz dummy value
+            }
+        }
+        else {
+            listener->bpmChanged(0);
+        }
+    }
 }
+
 
 //==============================================================================
 FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
@@ -234,13 +304,6 @@ void FilterModulatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         buffer.clear (i, 0, buffer.getNumSamples());
 
     engine.processBlock(buffer);
-    
-    /*
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-    }*/
 }
 
 //==============================================================================

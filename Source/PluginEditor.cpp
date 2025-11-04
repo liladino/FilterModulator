@@ -16,7 +16,8 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
         modulatorSwitch("LFO", false, false, "Off", "Seq"),
         resonanceSlider("Resonance"),
         sequencerUI(vts),
-        oscillatorUI(vts)
+        oscillatorUI(vts),
+        rate(vts)
     {
 
     highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
@@ -44,10 +45,13 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     
     sequencerUI.addListener(vts, audioProcessor);
     oscillatorUI.addListener(vts, audioProcessor);
+    rate.addListener(vts, audioProcessor);
     
-    setSize(800, 600);
-    //setResizable(false, false);
-    setResizable(true, true);
+    audioProcessor.addMyUIListener(&rate);
+
+    setSize(810, 630);
+    setResizable(false, false);
+    //setResizable(true, true);
 }
 
 FilterModulatorAudioProcessorEditor::~FilterModulatorAudioProcessorEditor()

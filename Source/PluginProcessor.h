@@ -14,6 +14,12 @@
 //==============================================================================
 /**
 */
+
+class MyUIListener {
+public:
+    virtual void bpmChanged(float bpm) = 0;
+};
+
 class FilterModulatorAudioProcessor  : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
@@ -56,7 +62,11 @@ public:
 
     void parameterChanged(const juce::String& paramID, float newValue) override;
 
+    void addMyUIListener(MyUIListener* listener){
+        this->listener = listener;
+    }
 private:
+    MyUIListener* listener = nullptr;
     juce::AudioProcessorValueTreeState parameters;
     /*std::atomic<float>* cutoffFrequencyParameter = nullptr;
     std::atomic<float>* highpassParameter = nullptr;

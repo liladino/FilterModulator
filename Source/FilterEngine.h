@@ -15,15 +15,13 @@
 #include "Modulator.h"
 #include "Filters.h"
 
-
 class FilterEngine {
 public:
     FilterEngine()
         : LP(std::make_unique<LowPassFilter>()), HP(std::make_unique<HighPassFilter>()),
           seq(std::make_unique<StepSequencer>()), lfo(std::make_unique<Oscillator>())
     {
-        cutoff = 500;
-        resonance = 1;
+        _cutoff = 500;
         filter = LP.get();
         modulator = nullptr;
     }
@@ -39,20 +37,18 @@ public:
     enum class ModulatorMode { Off, LFO, Seq};
 
     void setFilterMode(FilterMode newMode);
-
     void setModulator(ModulatorMode newMode);
-
+    void setModWaveType(WaveGenerator::WaveType newMode);
     void setResonance(float resonance);
-
+    void setRate(float rateHz);
     void setCutoff(float cutoff);
-
     void setSequencerStep(int index, float cutoff);
-
     void setSequencerNum(int value);
-
     void setLFOwidth(float value);
+    void syncToBPM(float bpm);
 private:
-    float cutoff, resonance; 
+    void setCutoffInFiltersOnly(float cutoff);
+    float _cutoff; 
 
     Filter* filter = nullptr;
     std::unique_ptr<LowPassFilter> LP;

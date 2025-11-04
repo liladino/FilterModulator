@@ -54,7 +54,7 @@ class Filter {
 public:
     virtual ~Filter() = default;
     virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { 
-        cutoffSmoother.reset(sampleRate, 0.0075f);
+        cutoffSmoother.reset(sampleRate, 0.01f);
         cutoffSmoother.setCurrentAndTargetValue(cutoff);
 
         this->sampleRate = sampleRate; 
