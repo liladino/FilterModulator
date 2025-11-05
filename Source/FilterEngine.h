@@ -41,14 +41,19 @@ public:
     void setModWaveType(WaveGenerator::WaveType newMode);
     void setResonance(float resonance);
     void setRate(float rateHz);
-    void setRate();
+    void setRate(); //set the last used rate (amd switch back from bpm mode)
     void setCutoff(float cutoff);
     void setSequencerStep(int index, float cutoff);
     void setSequencerNum(int value);
     void setLFOwidth(float value);
+    void setBPMnoteLength(float noteLength);
     void syncToBPM(float bpm);
+    void syncToBPM(); //set the last used bpm 
 private:
     float lastRate = 1;
+    bool BPMsynced = false;
+    float lastBPM = 60;
+    float noteLength = 1;
     void setCutoffInFiltersOnly(float cutoff);
     float _cutoff; 
 

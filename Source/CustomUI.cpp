@@ -14,6 +14,9 @@
  * LabeledSlider *
  *****************/
 
+using Track = juce::Grid::TrackInfo;
+using Fr = juce::Grid::Fr;
+
 LabeledSlider::LabeledSlider(const juce::String& name, bool textbox, bool vertical, const juce::String& name2, const juce::String& name3) : textbox(textbox) {
     label.setText(name, juce::dontSendNotification);
     label2.setText(name2, juce::dontSendNotification);
@@ -65,7 +68,7 @@ void LabeledSlider::resized() {
         label2.setBounds(labelArea);
         label3.setBounds(labelArea);
 
-        slider.setBounds(bounds);//.withTrimmedTop(20));
+        slider.setBounds(bounds.withTop(20));
     }
 }
 
@@ -120,9 +123,82 @@ void LpHpSwitch::resized() {
     //above.setBounds(bounds);
     below.setBounds(bounds);
 
-    lphp.setBounds(bounds.withTrimmedTop(20).withTrimmedBottom(20));
+    lphp.setBounds(bounds.withTrimmedTop(25).withTrimmedBottom(25));
 }
 
+
+/***************
+ * RateSetting *
+ ***************/
+
+RateSetting::RateSetting(juce::AudioProcessorValueTreeState& vts) : rate("Sec") {
+    rateAttachment =
+        std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "rate", rate.knob);
+
+    rate.knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+
+    syncBPM.setButtonText("Sync BPM");
+
+    syncBPMattachment =
+        std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(vts, "syncBPM", syncBPM);
+
+    label.setText("Rate", juce::dontSendNotification);
+    label.setJustificationType(juce::Justification::centred);
+
+    bpmlabel.setText("BPM", juce::dontSendNotification);
+
+    notelength.addItemList(juce::StringArray{ "1/3", "1/2","2/3","3/4","1","3/2","2","3","4" }, 1);
+
+    notelength.setSelectedId(5);
+
+    noteLengthAttachment =
+        std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(vts, "notelength", notelength);
+
+    addAndMakeVisible(rate);
+    addAndMakeVisible(syncBPM);
+    addAndMakeVisible(bpmlabel);
+    addAndMakeVisible(label);
+    addAndMakeVisible(notelength);
+
+    syncBPM.onClick = [this]()
+        {
+            bool bpmMode = syncBPM.getToggleState();
+            rate.knob.setEnabled(!bpmMode);
+        };
+}
+
+void RateSetting::resized() {
+    juce::Grid grid;
+    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)) };
+    grid.templateRows = { Track(Fr(1)), Track(Fr(3)), Track(Fr(4)), Track(Fr(3)) };
+    grid.rowGap = juce::Grid::Px(10);
+    grid.columnGap = juce::Grid::Px(10);
+
+    grid.items.add(
+        juce::GridItem(label).withArea(1, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(rate).withArea(2, 1, juce::GridItem::Span(3), juce::GridItem::Span(1)),
+        juce::GridItem(syncBPM).withArea(2, 2),
+        juce::GridItem(notelength).withArea(3, 2),
+        juce::GridItem(bpmlabel).withArea(4, 2)
+    );
+    grid.performLayout(getLocalBounds());
+}
+
+void RateSetting::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
+    vts.addParameterListener("rate", &audioProcessor);
+    vts.addParameterListener("syncBPM", &audioProcessor);
+    vts.addParameterListener("notelength", &audioProcessor);
+}
+
+void RateSetting::bpmChanged(float bpm) {
+    DBG(bpm);
+    if (bpm > 1) {
+        bpmlabel.setText(std::to_string(static_cast<int>(bpm)) + std::string(" BPM"), juce::dontSendNotification);
+    }
+    else {
+        bpmlabel.setText(" - BPM", juce::dontSendNotification);
+    }
+}
 
 /*************
  * Sequencer *
@@ -138,6 +214,11 @@ Sequencer::Sequencer(juce::AudioProcessorValueTreeState& vts) : number("Active",
         auto& slider = freqKnobs[i];
         slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
         slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+
+        label.setText("Sequencer", juce::dontSendNotification);
+        label.setJustificationType(juce::Justification::centred);
+
+        addAndMakeVisible(label);
         addAndMakeVisible(slider);
     }
     ids.insert("numberOfSteps");
@@ -149,13 +230,15 @@ Sequencer::Sequencer(juce::AudioProcessorValueTreeState& vts) : number("Active",
 
 void Sequencer::resized() {
     juce::Grid grid;
-    grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)) };
-    grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)) };
+    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
+    grid.templateRows = { Track(Fr(1)), Track(Fr(4)), Track(Fr(4)), Track(Fr(4)), Track(Fr(4)) };
     grid.rowGap = juce::Grid::Px(10);
     grid.columnGap = juce::Grid::Px(10);
 
+    grid.items.add(juce::GridItem(label).withArea(1, 1, juce::GridItem::Span(1), juce::GridItem::Span(4)));
+
     grid.items.add(
-        juce::GridItem(number).withArea(1, 5, juce::GridItem::Span(4), juce::GridItem::Span(1))
+        juce::GridItem(number).withArea(1, 5, juce::GridItem::Span(5), juce::GridItem::Span(1))
     );
 
     for (auto& slider : freqKnobs)
@@ -182,12 +265,20 @@ LFOModulator::LFOModulator(juce::AudioProcessorValueTreeState& vts) : width("LFO
         waveFormButtAttachment[i] =
             std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(vts, "wavebutton" + std::to_string(i), button);
 
+        label.setText("Oscillator", juce::dontSendNotification);
+        label.setJustificationType(juce::Justification::centred);
         addAndMakeVisible(button);
     }
     waveFormButt[0].setToggleState(true, juce::dontSendNotification);
+    waveFormButt[0].setButtonText("Sin");
+    waveFormButt[1].setButtonText("Square");
+    waveFormButt[2].setButtonText("Saw");
+    waveFormButt[3].setButtonText("Saw * (-1)");
+
     widthAttachment =
         std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "lfowidth", width.slider);
     addAndMakeVisible(width);
+    addAndMakeVisible(label);
 }
 
 void LFOModulator::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
@@ -198,18 +289,18 @@ void LFOModulator::addListener(juce::AudioProcessorValueTreeState& vts, FilterMo
 
 void LFOModulator::resized() {
     juce::Grid grid;
-    grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-    };
-    grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-    };
+    grid.templateColumns = { Track(Fr(1)), Track(Fr(1)) };
+    grid.templateRows = { Track(Fr(1)), Track(Fr(7)), Track(Fr(7)), Track(Fr(7)) };
     grid.rowGap = juce::Grid::Px(10);
     grid.columnGap = juce::Grid::Px(10);
 
+    grid.items.add(juce::GridItem(label).withArea(1, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)));
+
+    //grid.alignContent = juce::Grid::AlignContent::start;
+    //grid.alignItems = juce::Grid::AlignItems::start;
+
     grid.items.add(
-        juce::GridItem(width).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2))
+        juce::GridItem(width).withArea(4, 1, juce::GridItem::Span(1), juce::GridItem::Span(2))
     );
 
     for (auto& button : waveFormButt) {

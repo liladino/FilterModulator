@@ -71,6 +71,10 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         "syncBPM", "Sync BPM", false));
 
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "notelength", "Note Length",
+        juce::StringArray{ "1/3", "1/2","2/3","3/4","1","3/2","2","3","4" }, 4 ));
+
 
     return { params.begin(), params.end() };
 }
@@ -135,13 +139,13 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
     else if (paramID.dropLastCharacters(1) == "wavebutton") {
         switch (paramID.getLastCharacter()) {
         case '1':
-            engine.setModWaveType(WaveGenerator::WaveType::Saw);
-            break;
-        case '2':
             engine.setModWaveType(WaveGenerator::WaveType::Square);
             break;
+        case '2':
+            engine.setModWaveType(WaveGenerator::WaveType::Saw);
+            break;
         case '3':
-            engine.setModWaveType(WaveGenerator::WaveType::Triangle);
+            engine.setModWaveType(WaveGenerator::WaveType::MinusSaw);
             break;
         default:
             engine.setModWaveType(WaveGenerator::WaveType::Sin);
@@ -155,17 +159,38 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
         if (newValue > 0.5f) {
             auto* playHead = getPlayHead();
             float val = bpmSet(playHead);
-            listener->bpmChanged(val);
             if (val > 1) {
                 engine.syncToBPM(val);
+                listener->bpmChanged(val);
             }
             else {
                 engine.syncToBPM(60); //1 Hz dummy value
+                listener->bpmChanged(60);
             }
         }
         else {
             listener->bpmChanged(0);
             engine.setRate();
+        }
+    }
+    else if (paramID == "notelength") {
+        const int val = static_cast<int>(newValue);
+        DBG("Notelength: " << val);
+
+        /* Note lengths : "1/3", "1/2", "2/3", "3/4", "1", "3/2", "2", "3", "4"
+         * Reciprokokat veszek, hogy BPM erteknek feleljen meg a hanghossz
+         */
+
+        switch (val) {
+            case 0: engine.setBPMnoteLength(3); break;
+            case 1: engine.setBPMnoteLength(2); break;
+            case 2: engine.setBPMnoteLength(3.f / 2); break;
+            case 3: engine.setBPMnoteLength(4.f / 3); break;
+            default: engine.setBPMnoteLength(1); break;
+            case 5: engine.setBPMnoteLength(2.f / 3); break;
+            case 6: engine.setBPMnoteLength(1.f / 2); break;
+            case 7: engine.setBPMnoteLength(1.f / 3); break;
+            case 8: engine.setBPMnoteLength(1.f / 4); break;
         }
     }
 }

@@ -80,12 +80,14 @@ void FilterEngine::setResonance(float resonance) {
 }
 
 void FilterEngine::setRate(float rateHz) {
+    BPMsynced = false;
     lfo->setRate(rateHz);
     seq->setRate(rateHz);
     lastRate = rateHz;
 }
 
 void FilterEngine::setRate() {
+    BPMsynced = false;
     lfo->setRate(lastRate);
     seq->setRate(lastRate);
 }
@@ -115,6 +117,22 @@ void FilterEngine::setLFOwidth(float value) {
 }
 
 void FilterEngine::syncToBPM(float bpm) {
-    lfo->syncToBPM(bpm);
-    seq->syncToBPM(bpm);
+    BPMsynced = true;
+    lastBPM = bpm;
+    lfo->syncToBPM(bpm * noteLength);
+    seq->syncToBPM(bpm * noteLength);
+
+    DBG("BPM " << bpm);
+}
+
+void FilterEngine::syncToBPM() {
+    syncToBPM(lastBPM);
+}
+
+void FilterEngine::setBPMnoteLength(float noteLength) {
+    this->noteLength = noteLength;
+    if (BPMsynced) {
+        DBG("tempo: " << lastBPM * noteLength);
+        syncToBPM();
+    }
 }

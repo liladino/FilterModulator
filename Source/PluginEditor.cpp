@@ -6,7 +6,6 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
 
 //==============================================================================
@@ -27,7 +26,7 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     
     addAndMakeVisible(modulatorSwitch);
     modulatorSwitchAttachment= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "modswitch", modulatorSwitch.slider);
-    
+
     addAndMakeVisible(resonanceSlider);
     resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "resonance", resonanceSlider.knob);
 
@@ -72,15 +71,18 @@ void FilterModulatorAudioProcessorEditor::resized()
 {
     juce::Grid grid;
 
-    grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(4))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(2)) 
+    using Track = juce::Grid::TrackInfo;
+    using Fr = juce::Grid::Fr;
+
+    grid.templateColumns = { Track(Fr(1))
+        , Track(Fr(1))
+        , Track(Fr(4))
+        , Track(Fr(2))
         //, juce::Grid::TrackInfo(juce::Grid::Fr(2)) 
     };
-    grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(1))
-        , juce::Grid::TrackInfo(juce::Grid::Fr(3)) 
+    grid.templateRows = { Track(Fr(4))
+        , Track(Fr(3))
+        , Track(Fr(11))
     };
     
     grid.items = {
