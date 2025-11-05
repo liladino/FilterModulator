@@ -3,12 +3,22 @@
 <JUCERPROJECT id="REsSzL" name="FilterModulator" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginAAXCategory="1">
   <MAINGROUP id="qfJCrS" name="FilterModulator">
+    <GROUP id="{D09D776F-2A04-2C6F-67CF-07B7973D40D9}" name="modulation">
+      <FILE id="cBEzWF" name="Modulator.h" compile="0" resource="0" file="Source/Modulator.h"/>
+      <FILE id="BhmXk1" name="Modulator.cpp" compile="1" resource="0" file="Source/Modulator.cpp"/>
+    </GROUP>
+    <GROUP id="{A208B84D-F160-7B20-B124-301DA027AD04}" name="Filtering">
+      <FILE id="cPdGnV" name="BWFilter.h" compile="0" resource="0" file="Source/BWFilter.h"/>
+      <FILE id="NF5bmi" name="BWFilter.cpp" compile="1" resource="0" file="Source/BWFilter.cpp"/>
+      <FILE id="jwPZj6" name="Filters.cpp" compile="1" resource="0" file="Source/Filters.cpp"/>
+      <FILE id="HJ1S9W" name="Filters.h" compile="0" resource="0" file="Source/Filters.h"/>
+      <FILE id="kzqqOe" name="FilterEngine.h" compile="0" resource="0" file="Source/FilterEngine.h"/>
+      <FILE id="EVcbsQ" name="FilterEngine.cpp" compile="1" resource="0"
+            file="Source/FilterEngine.cpp"/>
+    </GROUP>
     <GROUP id="{6605B7E8-47BC-FEFC-22D0-7BF022A15525}" name="Source">
       <FILE id="tz51ZP" name="CustomUI.cpp" compile="1" resource="0" file="Source/CustomUI.cpp"/>
       <FILE id="lMW1Em" name="CustomUI.h" compile="0" resource="0" file="Source/CustomUI.h"/>
-      <FILE id="EVcbsQ" name="FilterEngine.cpp" compile="1" resource="0"
-            file="Source/FilterEngine.cpp"/>
-      <FILE id="kzqqOe" name="FilterEngine.h" compile="0" resource="0" file="Source/FilterEngine.h"/>
       <FILE id="JC6vQs" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="wG5ph3" name="PluginProcessor.h" compile="0" resource="0"
@@ -16,10 +26,6 @@
       <FILE id="wEtawM" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="utTfEt" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="jwPZj6" name="Filters.cpp" compile="1" resource="0" file="Source/Filters.cpp"/>
-      <FILE id="HJ1S9W" name="Filters.h" compile="0" resource="0" file="Source/Filters.h"/>
-      <FILE id="BhmXk1" name="Modulator.cpp" compile="1" resource="0" file="Source/Modulator.cpp"/>
-      <FILE id="cBEzWF" name="Modulator.h" compile="0" resource="0" file="Source/Modulator.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

@@ -12,131 +12,14 @@
 
 #include <JuceHeader.h>
 
-struct ParameterSmoother {
-    float value = 0.0f;
-    float target = 0.0f;
-    float coeff = 0.0f; // smoothing coefficient, 0..1
-
-    void reset(double sampleRate, float smoothingTimeSec) {
-        coeff = std::exp(-1.0f / (smoothingTimeSec * (float)sampleRate));
-    }
-
-    void setTarget(float t) { target = t; }
-
-    float getNextValue(int samples) {
-        float stepCoeff = std::pow(coeff, (float)samples);
-        value = target + stepCoeff * (value - target);
-        return value;
-    }
-
-    void setCurrentAndTargetValue(float v) {
-        value = target = v;
-    }
-};
-
-
-class QuadFilter {
-public:
-    void setCoeffs(float _b0, float _b1, float _b2, float _a1, float _a2) {
-        b0 = _b0; b1 = _b1; b2 = _b2; a1 = _a1; a2 = _a2;
-    }
-    float processSample(float x);
-    void reset() {
-        x1 = 0; x2 = 0; y1 = 0; y2 = 0;
-    }
-
-private:
-    float b0, b1, b2, a1, a2;
-    float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-};
 
 class Filter {
 public:
     virtual ~Filter() = default;
-    virtual void prepareToPlay(double sampleRate, int samplesPerBlock) { 
-        cutoffSmoother.reset(sampleRate, 0.01f);
-        cutoffSmoother.setCurrentAndTargetValue(cutoff);
-
-        this->sampleRate = sampleRate; 
-        calcAndSetCoeffs();
-    }
-    virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime);
-    virtual void updateCoeffs(const int samplesThisTime, bool force = false) {
-        constexpr float EPSILON = 0.05f;
-        if (!force && 
-            std::abs(cutoff - __cutoff) < EPSILON &&
-            std::abs(resonance - __resonance) < EPSILON &&
-            std::abs(sampleRate - __sampleRate) < EPSILON) {
-            return;
-        }
-        if (force) {
-            __cutoff = cutoff;
-            cutoffSmoother.setCurrentAndTargetValue(cutoff);
-        }
-        else {
-            __cutoff = cutoffSmoother.getNextValue(samplesThisTime);
-        }
-        
-        DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
-        __resonance = resonance;
-        __sampleRate = sampleRate;
-
-        calcAndSetCoeffs();
-    }
-
-    void setCutoff(float freq) { 
-        cutoff = freq;
-        cutoffSmoother.setTarget(freq);
-    }
-    void setResonance(float q) { resonance = q; }
-    float getCutoff() { return cutoff; }
-    float getResonance() { return resonance; }
-
-protected:
-    // Butterworth 4edfoku szuro alapertekek
-    const float Q1 = 0.541196f;
-    const float Q2 = 1.306563f;
-
-    /*
-    Rezonancia:
-        egy skalar szorzo, ami beallitja, hogy a ket biquad szuro
-        Q1 es Q2 ertekeit milyen s-sel szorozzuk (ref. Matlab).
-
-        Q1 = 0.5411961
-        Q2 = 1.3065630
-
-        (4edfoku kaszkados Butterwoth szuro ertekei)
-        https://www.earlevel.com/main/2016/09/29/cascading-filters/
-    */
-
-    ParameterSmoother cutoffSmoother;
-
-    float cutoff = 500.0f;
-    float resonance = 1.f;
-    
-    float __cutoff = 500.0f;
-    float __resonance = 1.f;
-
-    double sampleRate = 44100.0;
-    double __sampleRate = 44100.0;
-
-    std::array<std::vector<QuadFilter>, 2> qfilters;
-
-    virtual void calcAndSetCoeffs();
-    virtual void setFilterCoeffs(float cosw0, float alpha, size_t index) = 0;
-};
-
-class LowPassFilter : public Filter {
-public:
-    LowPassFilter();
-    void setFilterCoeffs(float cosw0, float alpha, size_t index) override;
-private:
-};
-
-
-class HighPassFilter : public Filter {
-public:
-    HighPassFilter();
-    void setFilterCoeffs(float cosw0, float alpha, size_t index) override;
-private:
+    virtual void prepareToPlay(double sampleRate, int samplesPerBlock) = 0;
+    virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) = 0;
+    virtual void setCutoff(float freq) = 0;
+    virtual void setResonance(float q) = 0;
+    virtual float getCutoff() = 0;
+    virtual float getResonance() = 0;
 };

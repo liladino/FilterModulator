@@ -3,8 +3,8 @@
 class FilterEngine {
     prepareToPlay(sampleRate, samplesPerBlock)
     processBlock(buffer)
-    setFilterMode(newMode)
 }
+
 abstract Filter {
     prepareToPlay(sampleRate, samplesPerBlock)
     processBlock(buffer)
@@ -59,8 +59,8 @@ FilterModulatorAudioProcessorEditor o-- FilterModulatorAudioProcessor
 FilterModulatorAudioProcessor "1" *-- "1" FilterEngine
 Filter <|-- HighPass
 Filter <|-- LowPass
-FilterEngine "1" *-- "1" Filter
-FilterEngine "1" *-- "1" Modulator
+FilterEngine "1" *-- "2" Filter
+FilterEngine "1" *-- "2" Modulator
 Filter "1" *-- "1..*" QuadFilter
 Modulator <|-- StepSequencer
 Modulator <|-- Oscillator

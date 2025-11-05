@@ -71,7 +71,7 @@ private:
     /*std::atomic<float>* cutoffFrequencyParameter = nullptr;
     std::atomic<float>* highpassParameter = nullptr;
 
-    std::unique_ptr<Filter> filter;
+    std::unique_ptr<BWFilter> filter;
     std::unique_ptr<LowPassFilter> LP;
     std::unique_ptr<HighPassFilter> HP;*/
 

@@ -24,7 +24,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "cutoff", "Cutoff",
-        juce::NormalisableRange{ 20.f, 20000.f, 0.1f, 0.2f }, 500.f));
+        juce::NormalisableRange{ 25.f, 20000.f, 0.05f, 0.25f }, 500.f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "modswitch", "Modulator switch",
@@ -39,9 +39,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         //DBG(name);
 
         params.push_back(std::make_unique<juce::AudioParameterFloat>(
-            id, name,
-            juce::NormalisableRange{ 20.f, 20000.f, 0.1f, 0.2f }, 500.f));
-        
+            id, name, juce::NormalisableRange{ 25.f, 20000.f, 0.1f, 0.2f }, 500.f));
     }
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
@@ -66,7 +64,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     //rate
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "rate", "Rate sec",
-        juce::NormalisableRange{ 0.5f, 5.f, 0.1f }, 1.f));
+        juce::NormalisableRange{ 0.2f, 5.f, 0.1f }, 1.f));
     
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         "syncBPM", "Sync BPM", false));

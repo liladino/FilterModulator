@@ -13,6 +13,7 @@
 
 #include <JuceHeader.h>
 #include "Modulator.h"
+#include "BWFilter.h"
 #include "Filters.h"
 
 class FilterEngine {
