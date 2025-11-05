@@ -46,6 +46,8 @@ struct RateSetting : juce::Component, MyUIListener {
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> syncBPMattachment;
 
     juce::ComboBox notelength;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> noteLengthAttachment;
+
     juce::Label bpmlabel;
     RateSetting(juce::AudioProcessorValueTreeState& vts) : rate("Sec") {
         rateAttachment =
@@ -60,16 +62,12 @@ struct RateSetting : juce::Component, MyUIListener {
 
         bpmlabel.setText("BPM", juce::dontSendNotification);
 
-        notelength.addItem("1/3", 1);
-        notelength.addItem("1/2", 2);
-        notelength.addItem("2/3", 3);
-        notelength.addItem("3/4", 4);
-        notelength.addItem("1",   5);
-        notelength.addItem("3/2", 6);
-        notelength.addItem("2",   7);
-        notelength.addItem("3",   8);
-        notelength.addItem("4",   9);
+        notelength.addItemList(juce::StringArray{ "1/3", "1/2","2/3","3/4","1","3/2","2","3","4" }, 1);
+
         notelength.setSelectedId(5);
+
+        noteLengthAttachment = 
+            std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(vts, "notelength", notelength);
 
         addAndMakeVisible(rate);
         addAndMakeVisible(syncBPM);
@@ -102,15 +100,16 @@ struct RateSetting : juce::Component, MyUIListener {
     void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
         vts.addParameterListener("rate", &audioProcessor);
         vts.addParameterListener("syncBPM", &audioProcessor);
+        vts.addParameterListener("notelength", &audioProcessor);
     }
 
     virtual void bpmChanged(float bpm) override {
         DBG(bpm);
         if (bpm > 1) {
-            bpmlabel.setText(std::to_string(bpm), juce::dontSendNotification);
+            bpmlabel.setText(std::to_string(static_cast<int>(bpm)) + std::string(" BPM"), juce::dontSendNotification);
         }
         else {
-            bpmlabel.setText("BPM", juce::dontSendNotification);
+            bpmlabel.setText(" - BPM", juce::dontSendNotification);
         }
     }
 };

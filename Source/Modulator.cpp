@@ -82,8 +82,8 @@ float WaveGenerator::getNextValue(int samplesPerBlock) {
     case Square:
         value = (phase < 0.5 ? 1 : -1);
         break;
-    case Triangle:
-        value = 4.0f * fabs(phase - 0.5f) - 1.0f;
+    case MinusSaw:
+        value = 2.0 * phase - 1.0;
         break;
     case Saw:
         value = -2.0 * phase + 1.0;
