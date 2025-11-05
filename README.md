@@ -19,13 +19,9 @@ A **VST audio plugin** built with [JUCE](https://juce.com), for dynamic filter m
 - **Waveforms:** Sine, Saw, Square  
 - **Width control** in semitones depth  
 
----
-
 ## Run
 
 Drop the vst3 file from releases into your DAW's VST folder.
-
----
 
 ## Details
 - Implemented with **JUCE**  
