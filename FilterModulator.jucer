@@ -8,6 +8,8 @@
       <FILE id="BhmXk1" name="Modulator.cpp" compile="1" resource="0" file="Source/Modulator.cpp"/>
     </GROUP>
     <GROUP id="{A208B84D-F160-7B20-B124-301DA027AD04}" name="Filtering">
+      <FILE id="JturOk" name="MoogFilter.cpp" compile="1" resource="0" file="Source/MoogFilter.cpp"/>
+      <FILE id="PVjTlL" name="MoogFilter.h" compile="0" resource="0" file="Source/MoogFilter.h"/>
       <FILE id="cPdGnV" name="BWFilter.h" compile="0" resource="0" file="Source/BWFilter.h"/>
       <FILE id="NF5bmi" name="BWFilter.cpp" compile="1" resource="0" file="Source/BWFilter.cpp"/>
       <FILE id="jwPZj6" name="Filters.cpp" compile="1" resource="0" file="Source/Filters.cpp"/>

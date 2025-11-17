@@ -35,22 +35,6 @@ struct ParameterSmoother {
     }
 };
 
-
-class QuadFilter {
-public:
-    void setCoeffs(float _b0, float _b1, float _b2, float _a1, float _a2) {
-        b0 = _b0; b1 = _b1; b2 = _b2; a1 = _a1; a2 = _a2;
-    }
-    float processSample(float x);
-    void reset() {
-        x1 = 0; x2 = 0; y1 = 0; y2 = 0;
-    }
-
-private:
-    float b0, b1, b2, a1, a2;
-    float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-};
-
 class BWFilter : public Filter {
 public:
     virtual ~BWFilter() = default;
@@ -62,29 +46,7 @@ public:
         calcAndSetCoeffs();
     }
     virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime);
-    virtual void updateCoeffs(const int samplesThisTime, bool force = false) {
-        constexpr float EPSILON = 0.05f;
-        if (!force &&
-            std::abs(cutoff - __cutoff) < EPSILON &&
-            std::abs(resonance - __resonance) < EPSILON &&
-            std::abs(sampleRate - __sampleRate) < EPSILON) {
-            return;
-        }
-        if (force) {
-            __cutoff = cutoff;
-            cutoffSmoother.setCurrentAndTargetValue(cutoff);
-        }
-        else {
-            __cutoff = cutoffSmoother.getNextValue(samplesThisTime);
-        }
-
-        DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
-        __resonance = resonance;
-        __sampleRate = sampleRate;
-
-        calcAndSetCoeffs();
-    }
-
+    virtual void updateCoeffs(const int samplesThisTime, bool force = false);
     virtual void setCutoff(float freq) override {
         cutoff = freq;
         cutoffSmoother.setTarget(freq);

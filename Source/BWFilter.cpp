@@ -57,6 +57,29 @@ void BWFilter::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, 
     }
 }
 
+void BWFilter::updateCoeffs(const int samplesThisTime, bool force = false) {
+    constexpr float EPSILON = 0.05f;
+    if (!force &&
+        std::abs(cutoff - __cutoff) < EPSILON &&
+        std::abs(resonance - __resonance) < EPSILON &&
+        std::abs(sampleRate - __sampleRate) < EPSILON) {
+        return;
+    }
+    if (force) {
+        __cutoff = cutoff;
+        cutoffSmoother.setCurrentAndTargetValue(cutoff);
+    }
+    else {
+        __cutoff = cutoffSmoother.getNextValue(samplesThisTime);
+    }
+
+    DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
+    __resonance = resonance;
+    __sampleRate = sampleRate;
+
+    calcAndSetCoeffs();
+}
+
 LowPassFilter::LowPassFilter() {
     updateCoeffs(64, true);
 }
