@@ -14,7 +14,7 @@ void FilterEngine::prepareToPlay(double sampleRate, int samplesPerBlock) {
     LP->prepareToPlay(sampleRate, samplesPerBlock);
     HP->prepareToPlay(sampleRate, samplesPerBlock);
     seq->prepareToPlay(sampleRate, samplesPerBlock);
-    //lfo->prepareToPlay(sampleRate, samplesPerBlock);
+    lfo->prepareToPlay(sampleRate, samplesPerBlock);
 }
 
 void FilterEngine::processBlock(juce::AudioBuffer<float>& buffer) {
