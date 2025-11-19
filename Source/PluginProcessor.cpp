@@ -14,9 +14,13 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+    /*params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "HpLpMode", "Highpass",
-        juce::NormalisableRange{ 0.f, 1.f, 1.f }, 0.f));
+        juce::NormalisableRange{ 0.f, 1.f, 1.f }, 0.f));*/
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "filterMode", "Note Length",
+        juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass" }, 0));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
@@ -94,14 +98,19 @@ float bpmSet(juce::AudioPlayHead* playHead) {
 
 void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID, float newValue) {
     DBG("parameterChanged() called " << paramID);
-    if (paramID == "HpLpMode") {
-        if (newValue < 0.5f) {
-            engine.setFilterMode(FilterEngine::FilterMode::LowPass);
+    if (paramID == "filterMode") {
+        const int val = static_cast<int>(newValue);
+        DBG("filterMode: " << val);
+
+        /* Modok : "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass"
+         */
+
+        switch (val) {
+        default: engine.setFilterMode(FilterEngine::FilterMode::BWLowPass); break;
+        case 1: engine.setFilterMode(FilterEngine::FilterMode::BWHighPass); break;
+        case 2: engine.setFilterMode(FilterEngine::FilterMode::MoogLowPass); break;
+        case 3: engine.setFilterMode(FilterEngine::FilterMode::MoogHighPass); break;
         }
-        else {
-            engine.setFilterMode(FilterEngine::FilterMode::HighPass);
-        }
-        DBG("Highpass / lowpass");
     }
     else if (paramID == "cutoff") {
         engine.setCutoff(newValue);
@@ -201,7 +210,7 @@ FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
                 .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
         parameters(*this, nullptr, juce::Identifier("FilterModulatorPlugin"), createParameterLayout())
 {
-    engine.setFilterMode(FilterEngine::FilterMode::LowPass);
+    engine.setFilterMode(FilterEngine::FilterMode::BWLowPass);
     engine.setResonance(1.f);
     engine.setCutoff(500.f);
     engine.setModulator(FilterEngine::ModulatorMode::Off);

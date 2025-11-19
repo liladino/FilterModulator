@@ -19,7 +19,11 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
         rate(vts)
     {
 
-    highpassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "HpLpMode", highpassSwitch.lphp);
+    addAndMakeVisible(filterMode);
+    filterModeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(vts, "filterMode", filterMode);
+    filterMode.addItemList(juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass" }, 1);
+    filterMode.setSelectedId(1);
+
 
     addAndMakeVisible(cutoffFrequencySlider);
     cutoffFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "cutoff", cutoffFrequencySlider.slider);
@@ -33,11 +37,10 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     //setupSlider(cutoffFrequencySlider, cutoffFrequencyLabel, cutoffFrequencyAttachment, vts, "cutoff");
 
     addAndMakeVisible(sequencerUI);
-    addAndMakeVisible(highpassSwitch);
     addAndMakeVisible(oscillatorUI);
     addAndMakeVisible(rate);
 
-    vts.addParameterListener("HpLpMode", &audioProcessor);
+    vts.addParameterListener("filterMode", &audioProcessor);
     vts.addParameterListener("cutoff", &audioProcessor);
     vts.addParameterListener("resonance", &audioProcessor);
     vts.addParameterListener("modswitch", &audioProcessor);
@@ -86,7 +89,7 @@ void FilterModulatorAudioProcessorEditor::resized()
     };
     
     grid.items = {
-        juce::GridItem(highpassSwitch),
+        juce::GridItem(filterMode),
         juce::GridItem(resonanceSlider),
         juce::GridItem(cutoffFrequencySlider).withArea(1, 3, juce::GridItem::Span(1), juce::GridItem::Span(1)),
         juce::GridItem(rate),

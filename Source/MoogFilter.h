@@ -52,7 +52,7 @@ public:
             auto* samples = buffer.getWritePointer(channel);
 
             for (int n = numProcessed; n < numProcessed + samplesThisTime; n++) {
-                float s = samples[n] - resonance * std::tanh(/* szorzo kerulhet ide */ poles[3][channel].y); // feedback
+                float s = samples[n] - resonance * std::tanh(0.5f * samples[n] + poles[3][channel].y); // feedback
                 for (int i = 0; i < 4; i++) {
                     s = poles[i][channel].processSample(s, g);
                 }

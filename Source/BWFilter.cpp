@@ -57,7 +57,7 @@ void BWFilter::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, 
     }
 }
 
-void BWFilter::updateCoeffs(const int samplesThisTime, bool force = false) {
+void BWFilter::updateCoeffs(const int samplesThisTime, bool force) {
     constexpr float EPSILON = 0.05f;
     if (!force &&
         std::abs(cutoff - __cutoff) < EPSILON &&

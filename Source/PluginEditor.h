@@ -36,9 +36,9 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         resonanceAttachment;
 
-    LpHpSwitch highpassSwitch;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
-        highpassAttachment;
+    juce::ComboBox filterMode;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
+        filterModeAttachment;
 
     LabeledSlider modulatorSwitch;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>

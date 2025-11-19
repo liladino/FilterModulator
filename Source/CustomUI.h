@@ -30,13 +30,13 @@ struct LabeledKnob : juce::Component {
     void resized() override;
 };
 
-struct LpHpSwitch : juce::Component {
+/*struct LpHpSwitch : juce::Component {
     juce::Slider lphp;
     juce::Label above;
     juce::Label below;
     LpHpSwitch();
     void resized() override;
-};
+};*/
 
 struct RateSetting : juce::Component, MyUIListener {
     LabeledKnob rate;

@@ -101,7 +101,7 @@ void LabeledKnob::resized() {
  * LpHpSwitch *
  **************/
 
-LpHpSwitch::LpHpSwitch() {
+/*LpHpSwitch::LpHpSwitch() {
     above.setText("Highpass", juce::dontSendNotification);
     below.setText("Lowpass", juce::dontSendNotification);
     addAndMakeVisible(above);
@@ -124,7 +124,7 @@ void LpHpSwitch::resized() {
     below.setBounds(bounds);
 
     lphp.setBounds(bounds.withTrimmedTop(25).withTrimmedBottom(25));
-}
+}*/
 
 
 /***************

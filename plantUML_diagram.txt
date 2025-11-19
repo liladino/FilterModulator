@@ -7,7 +7,7 @@ class FilterEngine {
 
 abstract Filter {
     prepareToPlay(sampleRate, samplesPerBlock)
-    processBlock(buffer)
+    processBlock(buffer, numProcessed, samplesThisTime)
     updateCoeffs() 
 }
 
