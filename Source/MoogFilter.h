@@ -31,81 +31,34 @@ struct MoogPole {
 
 class MoogFilter : public Filter {
 public:
-	MoogFilter() {
-		MoogFilter(MoogType::LP);
-	}
-	MoogFilter(MoogType type) {
+    enum class MoogType { MoogLP, MoogHP, MoogBP };
+        
+	MoogFilter(MoogType type = MoogType::MoogLP) {
 		switch (type){
-		case MoogType::LP: 	//LP
+		case MoogType::MoogLP: 	
 			ABCDE = {0, 0, 0, 0, 1};
 			break;
-		case MoogType::HP:
+		case MoogType::MoogHP:
 			ABCDE = {1, -4, 6, -4, 1};
 			break;
-		case MoogType::BP:
+		case MoogType::MoogBP:
 			ABCDE = {0, 0, 4, -8, 4};
-			break;
-		case MoogType::Notch:
-			ABCDE = {1, 0, -2, 0, 1};
 			break;
 		}
 	}
-	
-	enum class MoogType { LP, HP, BP };
-	
-    void prepareToPlay(double sampleRate, int samplesPerBlock) override {
-        this->sampleRate = sampleRate;
-        setCutoff(500.f);
-        setResonance(1.f);
-    }
-    void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) override {
-        int numChannels = buffer.getNumChannels();
-        
-        if (poles[0].size() != numChannels) {
-            for (int i = 0; i < 4; i++) {
-                poles[i].resize(numChannels);
-                for (auto& f : poles[i]) f.reset();
-            }
+		
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) override;
 
-            DBG("Filter resized for " << numChannels << " channels.");
-        }
-
-        for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
-            auto* samples = buffer.getWritePointer(channel);
-
-            for (int n = numProcessed; n < numProcessed + samplesThisTime; n++) {                
-                std::array<float, 5> arr;
-                arr[0] = samples[n] - resonance * std::tanh(0.5f * samples[n] + poles[3][channel].y); // feedback
-                arr[1] = poles[0][channel].processSample(arr[0], g);
-                arr[2] = poles[1][channel].processSample(arr[1], g);
-                arr[3] = poles[2][channel].processSample(arr[2], g);
-                arr[4] = poles[3][channel].processSample(arr[3], g);
-                
-                float acc = 0;
-                for (int i = 0; i < 5; i++){
-					acc += arr[i] * ABCDE[i];
-				}
-
-                samples[n] = acc;
-            }
-        }
-    }
-
-    void setCutoff(float freq) override {
-        cutoff = freq;
-        wc = 2 * PI * cutoff / sampleRate;
-        g = 0.9892f * wc - 0.4342f * wc * wc + 0.1381f * wc * wc * wc - 0.0202f * wc * wc * wc * wc;
-    }
-    void setResonance(float q) override {
-        /* A Moog filter akkor lapos, ha a resonancia 0, 
-         * a ui-ban 0.5 es 5 kozott allitunk erteket */
-        resonance = (q - 0.45f) * (1.0029f + 0.0526f * wc - 0.0926f * wc * wc + 0.0218 * wc * wc * wc);
-    }
+    void setCutoff(float freq) override;
+    void setResonance(float q) override;
 
     float getCutoff() override { return cutoff; }
     float getResonance() override { return resonance; }
 
 private:
+    float lastq = 0.5f;
+
     const float PI = 3.14159265358f;
 
     double sampleRate = 44100.0;
@@ -116,7 +69,7 @@ private:
     
     float resonance = 0.f;
     
-    std::array<float, 5> ABCDE;
+    std::array<float, 5> ABCDE = {0, 0, 0, 0, 1};
 
     std::array<std::vector<MoogPole>, 4> poles;
 };

@@ -19,10 +19,10 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
         rate(vts)
     {
 
-    addAndMakeVisible(filterMode);
+    filterMode.addItemList(juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass", "Moog Bandpass" }, 1);
     filterModeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(vts, "filterMode", filterMode);
-    filterMode.addItemList(juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass" }, 1);
-    filterMode.setSelectedId(1);
+    //filterMode.setSelectedId(1);
+    addAndMakeVisible(filterMode);
 
 
     addAndMakeVisible(cutoffFrequencySlider);

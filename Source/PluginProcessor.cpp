@@ -20,7 +20,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         "filterMode", "Note Length",
-        juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass" }, 0));
+        juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass", "Moog Bandpass" }, 0));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
@@ -110,6 +110,7 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
         case 1: engine.setFilterMode(FilterEngine::FilterMode::BWHighPass); break;
         case 2: engine.setFilterMode(FilterEngine::FilterMode::MoogLowPass); break;
         case 3: engine.setFilterMode(FilterEngine::FilterMode::MoogHighPass); break;
+        case 4: engine.setFilterMode(FilterEngine::FilterMode::MoogBandPass); break;
         }
     }
     else if (paramID == "cutoff") {
