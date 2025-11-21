@@ -53,7 +53,7 @@ private:
 class WaveGenerator {
 public:
     const float PI = 3.14159265358f;
-    enum WaveType { Sin, Square, Saw, MinusSaw };
+    enum class WaveType { Sin, Square, Saw, MinusSaw };
 
     void prepareToPlay(float sampleRate);
     void setFrequency(float newFreq);

@@ -76,16 +76,16 @@ void WaveGenerator::setFrequency(float newFreq) {
 float WaveGenerator::getNextValue(int samplesPerBlock) {
     float value = 0;
     switch (type) {
-    case Sin:
+    case WaveType::Sin:
         value = std::sin(2.0f * PI * phase);
         break;
-    case Square:
+    case WaveType::Square:
         value = (phase < 0.5 ? 1 : -1);
         break;
-    case MinusSaw:
+    case WaveType::MinusSaw:
         value = 2.0 * phase - 1.0;
         break;
-    case Saw:
+    case WaveType::Saw:
         value = -2.0 * phase + 1.0;
         break;
     }

@@ -31,6 +31,28 @@ struct MoogPole {
 
 class MoogFilter : public Filter {
 public:
+	MoogFilter() {
+		MoogFilter(MoogType::LP);
+	}
+	MoogFilter(MoogType type) {
+		switch (type){
+		case MoogType::LP: 	//LP
+			ABCDE = {0, 0, 0, 0, 1};
+			break;
+		case MoogType::HP:
+			ABCDE = {1, -4, 6, -4, 1};
+			break;
+		case MoogType::BP:
+			ABCDE = {0, 0, 4, -8, 4};
+			break;
+		case MoogType::Notch:
+			ABCDE = {1, 0, -2, 0, 1};
+			break;
+		}
+	}
+	
+	enum class MoogType { LP, HP, BP };
+	
     void prepareToPlay(double sampleRate, int samplesPerBlock) override {
         this->sampleRate = sampleRate;
         setCutoff(500.f);
@@ -51,13 +73,20 @@ public:
         for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
             auto* samples = buffer.getWritePointer(channel);
 
-            for (int n = numProcessed; n < numProcessed + samplesThisTime; n++) {
-                float s = samples[n] - resonance * std::tanh(0.5f * samples[n] + poles[3][channel].y); // feedback
-                for (int i = 0; i < 4; i++) {
-                    s = poles[i][channel].processSample(s, g);
-                }
+            for (int n = numProcessed; n < numProcessed + samplesThisTime; n++) {                
+                std::array<float, 5> arr;
+                arr[0] = samples[n] - resonance * std::tanh(0.5f * samples[n] + poles[3][channel].y); // feedback
+                arr[1] = poles[0][channel].processSample(arr[0], g);
+                arr[2] = poles[1][channel].processSample(arr[1], g);
+                arr[3] = poles[2][channel].processSample(arr[2], g);
+                arr[4] = poles[3][channel].processSample(arr[3], g);
+                
+                float acc = 0;
+                for (int i = 0; i < 5; i++){
+					acc += arr[i] * ABCDE[i];
+				}
 
-                samples[n] = s;
+                samples[n] = acc;
             }
         }
     }
@@ -86,6 +115,8 @@ private:
     float g = 0.9892f * wc - 0.4342f * wc * wc + 0.1381f * wc * wc * wc - 0.0202f * wc * wc * wc * wc;
     
     float resonance = 0.f;
+    
+    std::array<float, 5> ABCDE;
 
     std::array<std::vector<MoogPole>, 4> poles;
 };

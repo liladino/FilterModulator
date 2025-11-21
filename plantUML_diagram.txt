@@ -8,11 +8,18 @@ class FilterEngine {
 abstract Filter {
     prepareToPlay(sampleRate, samplesPerBlock)
     processBlock(buffer, numProcessed, samplesThisTime)
+}
+
+abstract BWFilter {
     updateCoeffs() 
 }
 
-class LowPass
-class HighPass
+class MoogFilter {
+     
+}
+
+class LowPassFilter
+class HighPassFilter
 class QuadFilter {
     setCoeffs(b0, b1, b2, a1, a2)
     processSample(x)
@@ -57,8 +64,10 @@ class Oscillator {
 
 FilterModulatorAudioProcessorEditor o-- FilterModulatorAudioProcessor
 FilterModulatorAudioProcessor "1" *-- "1" FilterEngine
-Filter <|-- HighPass
-Filter <|-- LowPass
+Filter <|-- BWFilter
+Filter <|-- MoogFilter
+BWFilter <|-- HighPassFilter
+BWFilter <|-- LowPassFilter
 FilterEngine "1" *-- "2" Filter
 FilterEngine "1" *-- "2" Modulator
 Filter "1" *-- "1..*" QuadFilter
