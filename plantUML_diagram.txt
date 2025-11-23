@@ -14,12 +14,11 @@ abstract BWFilter {
     updateCoeffs() 
 }
 
-class MoogFilter {
-     
-}
+abstract BW4LPHP
+class MoogFilter 
 
-class LowPassFilter
-class HighPassFilter
+class BWHighPFilter
+class BWLowPFilter
 class QuadFilter {
     setCoeffs(b0, b1, b2, a1, a2)
     processSample(x)
@@ -48,6 +47,12 @@ enum WaveType {
     Saw
 }
 
+enum MoogType { 
+    MoogLP
+    MoogHP
+    MoogBP 
+}
+
 class WaveGenerator {
     prepareToPlay(sampleRate)
     setFrequency(newFreq)
@@ -62,19 +67,22 @@ class Oscillator {
     setDepth(semitoneDepth)
 }
 
-FilterModulatorAudioProcessorEditor o-- FilterModulatorAudioProcessor
+FilterModulatorAudioProcessorEditor o-right- FilterModulatorAudioProcessor
 FilterModulatorAudioProcessor "1" *-- "1" FilterEngine
 Filter <|-- BWFilter
 Filter <|-- MoogFilter
-BWFilter <|-- HighPassFilter
-BWFilter <|-- LowPassFilter
-FilterEngine "1" *-- "2" Filter
+BWFilter <|-- BW4LPHP
+BWFilter <|-- BWNotch
+BW4LPHP <|-- BWHighPFilter
+BW4LPHP <|-- BWLowPFilter
+FilterEngine "1" *-left- "6" Filter
 FilterEngine "1" *-- "2" Modulator
-Filter "1" *-- "1..*" QuadFilter
+BW4LPHP "1" *-- "1..*"  QuadFilter
 Modulator <|-- StepSequencer
-Modulator <|-- Oscillator
+Modulator <|--- Oscillator
 WaveGenerator *-- WaveType
-Oscillator *-- WaveGenerator
+Oscillator *- WaveGenerator
+MoogFilter *-- MoogType
 
 
 @endum
