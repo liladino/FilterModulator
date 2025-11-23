@@ -127,7 +127,8 @@ void FilterEngine::setSequencerNum(int value) {
 }
 
 void FilterEngine::setLFOwidth(float value) {
-    lfo->setDepth(value);
+    //set the full amplitude
+    lfo->setDepth(value / 2.f);
 }
 
 void FilterEngine::syncToBPM(float bpm) {
