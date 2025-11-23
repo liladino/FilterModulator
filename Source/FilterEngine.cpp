@@ -13,6 +13,7 @@
 void FilterEngine::prepareToPlay(double sampleRate, int samplesPerBlock) {
     BWLP->prepareToPlay(sampleRate, samplesPerBlock);
     BWHP->prepareToPlay(sampleRate, samplesPerBlock);
+    BWN->prepareToPlay(sampleRate, samplesPerBlock);
     MLP->prepareToPlay(sampleRate, samplesPerBlock);
     MHP->prepareToPlay(sampleRate, samplesPerBlock);
     MBP->prepareToPlay(sampleRate, samplesPerBlock);
@@ -49,9 +50,10 @@ void FilterEngine::processBlock(juce::AudioBuffer<float>& buffer) {
 void FilterEngine::setFilterMode(FilterMode newMode) {
     fmode = newMode;
     switch (fmode) {
-    default: filter = BWLP.get(); break;
-    case FilterMode::BWHighPass: filter = BWHP.get(); break;
-    case FilterMode::MoogLowPass: filter = MLP.get(); break;
+    default:                       filter = BWLP.get(); break;
+    case FilterMode::BWHighPass:   filter = BWHP.get(); break;
+    case FilterMode::BWNotch:      filter = BWN.get(); break;
+    case FilterMode::MoogLowPass:  filter = MLP.get(); break;
     case FilterMode::MoogHighPass: filter = MHP.get(); break;
     case FilterMode::MoogBandPass: filter = MBP.get(); break;
     }
@@ -81,6 +83,7 @@ void FilterEngine::setModWaveType(WaveGenerator::WaveType newMode) {
 void FilterEngine::setResonance(float resonance) {
     BWLP->setResonance(resonance);
     BWHP->setResonance(resonance);
+    BWN->setResonance(resonance);
     MLP->setResonance(resonance);
     MHP->setResonance(resonance);
     MBP->setResonance(resonance);
@@ -102,6 +105,7 @@ void FilterEngine::setRate() {
 void FilterEngine::setCutoffInFiltersOnly(float cutoff) {
     BWLP->setCutoff(cutoff);
     BWHP->setCutoff(cutoff);
+    BWN->setCutoff(cutoff);
     MLP->setCutoff(cutoff);
     MHP->setCutoff(cutoff);
     MBP->setCutoff(cutoff);

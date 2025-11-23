@@ -45,7 +45,7 @@ public:
         this->sampleRate = sampleRate;
         calcAndSetCoeffs();
     }
-    virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime);
+    virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) = 0;
     virtual void updateCoeffs(const int samplesThisTime, bool force = false);
     virtual void setCutoff(float freq) override {
         cutoff = freq;
@@ -55,6 +55,38 @@ public:
     virtual float getCutoff() override { return cutoff; }
     virtual float getResonance() override { return resonance; }
 
+protected:
+    ParameterSmoother cutoffSmoother;
+
+    float cutoff = 500.0f;
+    float resonance = 1.f;
+    double sampleRate = 48000.f;
+
+    // Ertek valtozas detektalashoz
+    float __cutoff = 500.0f;
+    float __resonance = 1.f;
+    double __sampleRate = 48000.f;
+
+    virtual void calcAndSetCoeffs() = 0;
+    virtual void setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) = 0;
+};
+
+class BWNotch : public BWFilter {
+public:
+    BWNotch();
+    void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime);
+protected:
+    ParameterSmoother cutoffSmoother;
+    std::vector<QuadFilter> filter;
+
+    void calcAndSetCoeffs();
+    void setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList);
+};
+
+class BW4LPHP : public BWFilter {
+public:
+    virtual ~BW4LPHP() = default;
+    virtual void processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime);
 protected:
     // Butterworth 4edfoku szuro alapertekek
     const float Q1 = 0.541196f;
@@ -72,34 +104,23 @@ protected:
         https://www.earlevel.com/main/2016/09/29/cascading-filters/
     */
 
-    ParameterSmoother cutoffSmoother;
-
-    float cutoff = 500.0f;
-    float resonance = 1.f;
-
-    float __cutoff = 500.0f;
-    float __resonance = 1.f;
-
-    double sampleRate = 44100.0;
-    double __sampleRate = 44100.0;
-
     std::array<std::vector<QuadFilter>, 2> qfilters;
 
     virtual void calcAndSetCoeffs();
-    virtual void setFilterCoeffs(float cosw0, float alpha, size_t index) = 0;
+    virtual void setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) = 0;
 };
 
-class LowPassFilter : public BWFilter {
+class BWLowPFilter : public BW4LPHP {
 public:
-    LowPassFilter();
-    void setFilterCoeffs(float cosw0, float alpha, size_t index) override;
+    BWLowPFilter();
+    void setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) override;
 private:
 };
 
 
-class HighPassFilter : public BWFilter {
+class BWHighPFilter : public BW4LPHP {
 public:
-    HighPassFilter();
-    void setFilterCoeffs(float cosw0, float alpha, size_t index) override;
+    BWHighPFilter();
+    void setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) override;
 private:
 };

@@ -20,7 +20,8 @@
 class FilterEngine {
 public:
     FilterEngine()
-        : BWLP(std::make_unique<LowPassFilter>()), BWHP(std::make_unique<HighPassFilter>()),
+        : BWLP(std::make_unique<BWLowPFilter>()), BWHP(std::make_unique<BWHighPFilter>()), 
+          BWN(std::make_unique<BWNotch>()),
           MLP(std::make_unique<MoogFilter>()),
           MHP(std::make_unique<MoogFilter>(MoogFilter::MoogType::MoogHP)),
           MBP(std::make_unique<MoogFilter>(MoogFilter::MoogType::MoogBP)),
@@ -38,7 +39,7 @@ public:
 
     void processBlock(juce::AudioBuffer<float>& buffer);
 
-    enum class FilterMode { BWLowPass, BWHighPass, MoogLowPass, MoogHighPass, MoogBandPass };
+    enum class FilterMode { BWLowPass, BWHighPass, BWNotch, MoogLowPass, MoogHighPass, MoogBandPass };
     enum class ModulatorMode { Off, LFO, Seq};
 
     void setFilterMode(FilterMode newMode);
@@ -63,8 +64,9 @@ private:
     float _cutoff; 
 
     Filter* filter = nullptr;
-    std::unique_ptr<LowPassFilter> BWLP;
-    std::unique_ptr<HighPassFilter> BWHP;
+    std::unique_ptr<BWLowPFilter> BWLP;
+    std::unique_ptr<BWHighPFilter> BWHP;
+    std::unique_ptr<BWNotch> BWN;
     std::unique_ptr<MoogFilter> MLP;
     std::unique_ptr<MoogFilter> MHP;
     std::unique_ptr<MoogFilter> MBP;

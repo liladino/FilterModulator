@@ -20,7 +20,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         "filterMode", "Note Length",
-        juce::StringArray{ "BW Lowpass", "BW Highpass", "Moog Lowpass", "Moog Highpass", "Moog Bandpass" }, 0));
+        juce::StringArray{ "BW Lowpass", "BW Highpass", "BW Notch", "Moog Lowpass", "Moog Highpass", "Moog Bandpass" }, 0));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "resonance", "Resonance",
@@ -108,9 +108,10 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
         switch (val) {
         default: engine.setFilterMode(FilterEngine::FilterMode::BWLowPass); break;
         case 1: engine.setFilterMode(FilterEngine::FilterMode::BWHighPass); break;
-        case 2: engine.setFilterMode(FilterEngine::FilterMode::MoogLowPass); break;
-        case 3: engine.setFilterMode(FilterEngine::FilterMode::MoogHighPass); break;
-        case 4: engine.setFilterMode(FilterEngine::FilterMode::MoogBandPass); break;
+        case 2: engine.setFilterMode(FilterEngine::FilterMode::BWNotch); break;
+        case 3: engine.setFilterMode(FilterEngine::FilterMode::MoogLowPass); break;
+        case 4: engine.setFilterMode(FilterEngine::FilterMode::MoogHighPass); break;
+        case 5: engine.setFilterMode(FilterEngine::FilterMode::MoogBandPass); break;
         }
     }
     else if (paramID == "cutoff") {
@@ -190,15 +191,15 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
          */
 
         switch (val) {
-            case 0: engine.setBPMnoteLength(3); break;
-            case 1: engine.setBPMnoteLength(2); break;
-            case 2: engine.setBPMnoteLength(3.f / 2); break;
-            case 3: engine.setBPMnoteLength(4.f / 3); break;
+            case 0:  engine.setBPMnoteLength(3); break;
+            case 1:  engine.setBPMnoteLength(2); break;
+            case 2:  engine.setBPMnoteLength(3.f / 2); break;
+            case 3:  engine.setBPMnoteLength(4.f / 3); break;
             default: engine.setBPMnoteLength(1); break;
-            case 5: engine.setBPMnoteLength(2.f / 3); break;
-            case 6: engine.setBPMnoteLength(1.f / 2); break;
-            case 7: engine.setBPMnoteLength(1.f / 3); break;
-            case 8: engine.setBPMnoteLength(1.f / 4); break;
+            case 5:  engine.setBPMnoteLength(2.f / 3); break;
+            case 6:  engine.setBPMnoteLength(1.f / 2); break;
+            case 7:  engine.setBPMnoteLength(1.f / 3); break;
+            case 8:  engine.setBPMnoteLength(1.f / 4); break;
         }
     }
 }

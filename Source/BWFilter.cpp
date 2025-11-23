@@ -25,7 +25,90 @@ float QuadFilter::processSample(float x)
 
 const float PI = 3.14159265358f;
 
-void BWFilter::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) {
+
+void BWFilter::updateCoeffs(const int samplesThisTime, bool force) {
+    constexpr float EPSILON = 0.05f;
+    if (!force &&
+        std::abs(cutoff - __cutoff) < EPSILON &&
+        std::abs(resonance - __resonance) < EPSILON &&
+        std::abs(sampleRate - __sampleRate) < EPSILON) {
+        return;
+    }
+    if (force) {
+        __cutoff = cutoff;
+        cutoffSmoother.setCurrentAndTargetValue(cutoff);
+    }
+    else {
+        __cutoff = cutoffSmoother.getNextValue(samplesThisTime);
+    }
+
+    DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
+    __resonance = resonance;
+    __sampleRate = sampleRate;
+
+    calcAndSetCoeffs();
+}
+
+BWNotch::BWNotch() {
+    updateCoeffs(64, true);
+}
+
+void BWNotch::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) {
+    int numChannels = buffer.getNumChannels();
+
+    if (filter.size() != numChannels) {
+        filter.resize(numChannels);
+        
+        for (auto& f : filter) f.reset();
+        
+        DBG("Filter resized for " << numChannels << " channels.");
+
+        updateCoeffs(samplesThisTime, true);
+    }
+    else {
+        updateCoeffs(samplesThisTime);
+    }
+
+    for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
+        auto* samples = buffer.getWritePointer(channel);
+        
+        for (int n = numProcessed; n < numProcessed + samplesThisTime; n++) {
+            samples[n] = filter[channel].processSample(samples[n]);
+        }
+    }
+}
+    
+void BWNotch::calcAndSetCoeffs() {
+    float w0 = 2.0f * PI * __cutoff / sampleRate;
+    float cosw0 = cos(w0);
+    float sinw0 = sin(w0);
+
+    float alpha = sinw0 / (2.0f * resonance);
+    setFilterCoeffs(cosw0, alpha, filter);
+}
+
+void BWNotch::setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) {
+    float b0 = 1;
+    float b1 = -2 * cosw0;
+    float b2 = 1;
+    float a0 = 1 + alpha;
+    float a1 = -2 * cosw0;
+    float a2 = 1 - alpha;
+
+    b0 /= a0;
+    b1 /= a0;
+    b2 /= a0;
+    a1 /= a0;
+    a2 /= a0;
+
+    DBG(a1 << ' ' << a2 << ' ' << b0 << ' ' << b1 << ' ' << b2);
+
+    for (auto& x : filterList) {
+        x.setCoeffs(b0, b1, b2, a1, a2);
+    }
+}
+
+void BW4LPHP::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, const int samplesThisTime) {
     int numChannels = buffer.getNumChannels();
 
     if (qfilters[0].size() != numChannels) {
@@ -57,35 +140,12 @@ void BWFilter::processBlock(juce::AudioBuffer<float>& buffer, int numProcessed, 
     }
 }
 
-void BWFilter::updateCoeffs(const int samplesThisTime, bool force) {
-    constexpr float EPSILON = 0.05f;
-    if (!force &&
-        std::abs(cutoff - __cutoff) < EPSILON &&
-        std::abs(resonance - __resonance) < EPSILON &&
-        std::abs(sampleRate - __sampleRate) < EPSILON) {
-        return;
-    }
-    if (force) {
-        __cutoff = cutoff;
-        cutoffSmoother.setCurrentAndTargetValue(cutoff);
-    }
-    else {
-        __cutoff = cutoffSmoother.getNextValue(samplesThisTime);
-    }
-
-    DBG(cutoff << " " << __cutoff << " " << resonance << " " << __resonance);
-    __resonance = resonance;
-    __sampleRate = sampleRate;
-
-    calcAndSetCoeffs();
-}
-
-LowPassFilter::LowPassFilter() {
+BWLowPFilter::BWLowPFilter() {
     updateCoeffs(64, true);
 }
 
-void BWFilter::calcAndSetCoeffs() {
-    //szurok egyutthato szamolas forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf?utm_source=chatgpt.com&ts=1761396484063
+void BW4LPHP::calcAndSetCoeffs() {
+    //szurok egyutthato szamolas forras: https://www.ti.com/lit/an/slaa447/slaa447.pdf
 
     float w0 = 2.0f * PI * __cutoff / sampleRate;
     float cosw0 = cos(w0);
@@ -93,11 +153,11 @@ void BWFilter::calcAndSetCoeffs() {
 
     float alpha1 = sinw0 / (2.0f * Q1 * resonance);
     float alpha2 = sinw0 / (2.0f * Q2 * resonance);
-    setFilterCoeffs(cosw0, alpha1, 0);
-    setFilterCoeffs(cosw0, alpha2, 1);
+    setFilterCoeffs(cosw0, alpha1, qfilters[0]);
+    setFilterCoeffs(cosw0, alpha2, qfilters[1]);
 }
 
-void LowPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index) {
+void BWLowPFilter::setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) {
     float b0 = (1 - cosw0) / 2;
     float b1 = 1 - cosw0;
     float b2 = (1 - cosw0) / 2;
@@ -111,18 +171,17 @@ void LowPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index) {
     a1 /= a0;
     a2 /= a0;
 
-    for (auto& x : qfilters[index]) {
+    for (auto& x : filterList) {
         x.setCoeffs(b0, b1, b2, a1, a2);
     }
-
     DBG("LowPassFilter::setFilterCoeffs() called");
 }
 
-HighPassFilter::HighPassFilter() {
+BWHighPFilter::BWHighPFilter() {
     updateCoeffs(64, true);
 }
 
-void HighPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index) {
+void BWHighPFilter::setFilterCoeffs(float cosw0, float alpha, std::vector<QuadFilter>& filterList) {
     float b0 = (1 + cosw0) / 2;
     float b1 = -(1 + cosw0);
     float b2 = (1 + cosw0) / 2;
@@ -136,7 +195,7 @@ void HighPassFilter::setFilterCoeffs(float cosw0, float alpha, size_t index) {
     a1 /= a0;
     a2 /= a0;
 
-    for (auto& x : qfilters[index]) {
+    for (auto& x : filterList) {
         x.setCoeffs(b0, b1, b2, a1, a2);
     }
 

@@ -24,7 +24,7 @@ public:
         setRate(bpm / 60.f);
     }
 protected:
-    double sampleRate = 44100.f;
+    double sampleRate = 48000.f;
     float rate = 1.0f; //hz
 };
 
@@ -62,7 +62,7 @@ public:
 private:
     void updateIncrement();
     WaveType type = WaveType::Sin;
-    float sampleRate = 44100.0;
+    float sampleRate = 48000.0;
     float frequency = 1.0f;
     double phase = 0;
     float phaseIncrement = 0.0f;

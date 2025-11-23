@@ -61,7 +61,7 @@ private:
 
     const float PI = 3.14159265358f;
 
-    double sampleRate = 44100.0;
+    double sampleRate = 48000.f;
     float cutoff = 500.f;
 
     float wc = 2 * PI * cutoff / sampleRate;

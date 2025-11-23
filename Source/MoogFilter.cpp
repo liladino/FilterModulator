@@ -66,5 +66,5 @@ void MoogFilter::setResonance(float q) {
      felett a Moog mar kezd szetesni. */
     lastq = q;
     resonance = ((q - 0.45f) / 5.f * 1.6f) * (1.0029f + 0.0526f * wc - 0.0926f * wc * wc + 0.0218f * wc * wc * wc);
-    DBG("resonance set to " << q << ' ' << lastq);
+    //DBG("resonance set to " << q << ' ' << lastq);
 }
