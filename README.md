@@ -7,7 +7,9 @@ A **VST audio plugin** built with [JUCE](https://juce.com), for dynamic filter m
 ## Features
 
 ### Filters
-- 4th-order **Low-Pass** and **High-Pass** filters  
+- simulated analog **Moog Low-**, **High-**, and **Band-pass** filters. 
+- 4th-order **Low-Pass** and **High-Pass** filters
+- 2nd-order **Notch** filter
 - **Resonance** control for amplification at the cutoff
 
 ### Modulation Sources
@@ -20,12 +22,12 @@ A **VST audio plugin** built with [JUCE](https://juce.com), for dynamic filter m
 - **Width control** in semitones depth  
 
 ## Run
-
 Drop the vst3 file from releases into your DAW's VST folder.
 
 ## Details
 - Implemented with **JUCE**  
 - Supports **VST3** format  
 - C++ codebase, workflow in Visual studio 2022
+- Simulations in Matlab
 
 
