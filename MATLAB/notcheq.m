@@ -2,31 +2,24 @@
 fs = 48000;          % sample rate
 fc = 1000;           % cutoff
 
-Q1 = 0.5411961;      % bw szuro standard ertekek
-Q2 = 1.306563;
-
-s = 2;               % resonance
+Q = 4.707;      % res
 
 % coeffs
 w0 = 2*pi*fc/fs;
 sinw0 = sin(w0);
 
-alpha1 = sinw0 / (2 * Q1 * s); 
-alpha2 = sinw0 / (2 * Q2 * s); 
+alpha = sinw0 / (2 * Q); 
 
-H1 = hpfilt(fs, fc, alpha1);
-H2 = hpfilt(fs, fc, alpha2);
+H1 = hpfilt(fs, fc, alpha);
 
-H4 = H1 * H2;
-
-[H, w] = freqz(H4.num{1}, H4.den{1}, 4096, fs);
+[H, w] = freqz(H1.num{1}, H1.den{1}, 4096, fs);
 
 figure;
 semilogx(w, 20*log10(abs(H)), 'LineWidth', 1.5);
 grid on;
 xlabel('Frequency (Hz)');
 ylabel('Magnitude (dB)');
-title('filter response');
+title('Notch filter response');
 xlim([20 fs/2]);
 ylim([-50 20]);
 
@@ -44,12 +37,12 @@ function H = hpfilt(fs, fc, alpha)
     w0 = 2*pi*fc/fs;
     cosw0 = cos(w0);
 
-    b0 =  (1 - cosw0)/2;
-    b1 =  (1 - cosw0);
-    b2 =  (1 - cosw0)/2;
-    a0 =   1 + alpha;
-    a1 =  -2*cosw0;
-    a2 =   1 - alpha;
+    b0 =  1;
+    b1 = -2 * cosw0;
+    b2 =  1;
+    a0 =  1 + alpha;
+    a1 = -2 * cosw0;
+    a2 =  1 - alpha;
 
     b = [b0 b1 b2] / a0;
     a = [1 a1/a0 a2/a0];
