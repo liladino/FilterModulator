@@ -40,6 +40,13 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     addAndMakeVisible(oscillatorUI);
     addAndMakeVisible(rate);
 
+    addAndMakeVisible(h1);
+    addAndMakeVisible(h2);
+    addAndMakeVisible(h3);
+    addAndMakeVisible(v1);
+    addAndMakeVisible(v2);
+    addAndMakeVisible(v3);
+
     vts.addParameterListener("filterMode", &audioProcessor);
     vts.addParameterListener("cutoff", &audioProcessor);
     vts.addParameterListener("resonance", &audioProcessor);
@@ -52,8 +59,8 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     audioProcessor.addMyUIListener(&rate);
 
     setSize(810, 630);
-    setResizable(false, false);
-    //setResizable(true, true);
+    //setResizable(false, false);
+    setResizable(true, true);
 }
 
 FilterModulatorAudioProcessorEditor::~FilterModulatorAudioProcessorEditor()
@@ -77,25 +84,34 @@ void FilterModulatorAudioProcessorEditor::resized()
     using Track = juce::Grid::TrackInfo;
     using Fr = juce::Grid::Fr;
 
-    grid.templateColumns = { Track(Fr(1))
+    grid.templateColumns = { Track(Fr(10))
+        , Track(Fr(10))
         , Track(Fr(1))
-        , Track(Fr(4))
-        , Track(Fr(2))
+        , Track(Fr(40))
+        , Track(Fr(1))
+        , Track(Fr(20))
         //, juce::Grid::TrackInfo(juce::Grid::Fr(2)) 
     };
-    grid.templateRows = { Track(Fr(4))
-        , Track(Fr(3))
-        , Track(Fr(11))
+    grid.templateRows = { Track(Fr(20))
+        , Track(Fr(1))
+        , Track(Fr(15))
+        , Track(Fr(1))
+        , Track(Fr(55))
     };
     
     grid.items = {
         juce::GridItem(filterMode),
         juce::GridItem(resonanceSlider),
-        juce::GridItem(cutoffFrequencySlider).withArea(1, 3, juce::GridItem::Span(1), juce::GridItem::Span(1)),
+        juce::GridItem(v1),
+        juce::GridItem(cutoffFrequencySlider).withArea(1, 4, juce::GridItem::Span(1), juce::GridItem::Span(1)),
+        juce::GridItem(v1),
         juce::GridItem(rate),
-        juce::GridItem(modulatorSwitch).withArea(2, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
-        juce::GridItem(oscillatorUI).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
-        juce::GridItem(sequencerUI).withArea(2, 3, juce::GridItem::Span(2), juce::GridItem::Span(2))
+        juce::GridItem(h1).withArea(2, 1, juce::GridItem::Span(1), juce::GridItem::Span(7)),
+        juce::GridItem(v2).withArea(3, 3, juce::GridItem::Span(3), juce::GridItem::Span(1)),
+        juce::GridItem(h2).withArea(4, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(modulatorSwitch).withArea(3, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(oscillatorUI).withArea(5, 1, juce::GridItem::Span(1), juce::GridItem::Span(2)),
+        juce::GridItem(sequencerUI).withArea(3, 4, juce::GridItem::Span(3), juce::GridItem::Span(3))
     };
 
     grid.rowGap = juce::Grid::Px(10);

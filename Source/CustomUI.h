@@ -55,6 +55,10 @@ struct RateSetting : juce::Component, MyUIListener {
     void resized() override;
     void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
     virtual void bpmChanged(float bpm) override;
+
+    /*void paint(juce::Graphics& g) override {
+        g.fillAll(juce::Colours::darkorchid);
+    }*/
 };
 
 
@@ -84,6 +88,11 @@ struct Sequencer : juce::Component {
     void resized() override;
 
     void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
+
+    /*void paint(juce::Graphics& g) override {
+        g.fillAll(juce::Colours::darkgoldenrod); 
+        g.drawRect(getLocalBounds());
+    }*/
 };
 
 struct LFOModulator : juce::Component {
@@ -101,4 +110,27 @@ struct LFOModulator : juce::Component {
 
     void resized() override;
     void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
+
+    /*void paint(juce::Graphics& g) override {
+        g.fillAll(juce::Colours::darkslateblue);
+    }*/
+};
+
+
+struct Separator : juce::Component
+{
+    enum Orientation { Vertical, Horizontal };
+    Orientation orientation;
+
+    Separator(Orientation o) : orientation(o) {}
+
+    void paint(juce::Graphics& g) override
+    {
+        g.setColour(juce::Colours::white);
+
+        if (orientation == Horizontal)
+            g.fillRect(0, getHeight() / 2, getWidth(), 1);
+        else
+            g.fillRect(getWidth() / 2, 0, 1, getHeight());
+    }
 };

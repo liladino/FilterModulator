@@ -49,4 +49,11 @@ private:
     LFOModulator oscillatorUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessorEditor)
+
+    Separator h1{ Separator::Horizontal };
+    Separator h2{ Separator::Horizontal };
+    Separator h3{ Separator::Horizontal };
+    Separator v1{ Separator::Vertical };
+    Separator v2{ Separator::Vertical };
+    Separator v3{ Separator::Vertical };
 };
