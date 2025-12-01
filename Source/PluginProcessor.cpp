@@ -338,6 +338,28 @@ void FilterModulatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    if (auto* ph = getPlayHead())
+    {
+        auto pos = ph->getPosition();
+        if (pos)
+        {
+            const bool startedNow = (!wasPlaying && pos->getIsPlaying());
+
+            const bool jumpedBack = (pos->getPpqPosition() < lastPpq);
+
+            const bool transportRestarted = startedNow || jumpedBack;
+
+            if (transportRestarted && pos->getIsPlaying())
+            {
+                engine.setModePhase(std::fmod(pos->getPpqPosition().orFallback(0.0), 1.0));
+            }
+
+            wasPlaying = pos->getIsPlaying();
+            lastPpq = pos->getPpqPosition().orFallback(0.0);
+        }
+    }
+
+
     engine.processBlock(buffer);
 }
 

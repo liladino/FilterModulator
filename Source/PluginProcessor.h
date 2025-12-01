@@ -68,12 +68,10 @@ public:
 private:
     MyUIListener* listener = nullptr;
     juce::AudioProcessorValueTreeState parameters;
-    /*std::atomic<float>* cutoffFrequencyParameter = nullptr;
-    std::atomic<float>* highpassParameter = nullptr;
 
-    std::unique_ptr<BWFilter> filter;
-    std::unique_ptr<LowPassFilter> LP;
-    std::unique_ptr<HighPassFilter> HP;*/
+    bool wasPlaying = false;
+    double lastPpq = 0.0;
+
 
     FilterEngine engine;
 

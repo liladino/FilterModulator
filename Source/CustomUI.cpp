@@ -132,20 +132,38 @@ void LpHpSwitch::resized() {
  ***************/
 
 RateSetting::RateSetting(juce::AudioProcessorValueTreeState& vts) : rate("Sec") {
+	// rate knob 
+	
     rateAttachment =
         std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "rate", rate.knob);
 
     rate.knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
 
+	// BPM Sync toggle
     syncBPM.setButtonText("Sync BPM");
 
     syncBPMattachment =
         std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(vts, "syncBPM", syncBPM);
+        
+    if (auto* p = vts.getRawParameterValue("syncBPM")) {
+		syncBPM.setToggleState(*p > 0.5f, juce::dontSendNotification);
+		rate.knob.setEnabled(!syncBPM.getToggleState());
+	}
+
+    syncBPM.onClick = [this]()
+        {
+            bool bpmMode = syncBPM.getToggleState();
+            rate.knob.setEnabled(!bpmMode);
+        };
+        
+    // labels
 
     label.setText("Rate", juce::dontSendNotification);
     label.setJustificationType(juce::Justification::centred);
 
     bpmlabel.setText("BPM", juce::dontSendNotification);
+
+	// combobox 
 
     notelength.addItemList(juce::StringArray{ "1/3", "1/2","2/3","3/4","1","3/2","2","3","4" }, 1);
 
@@ -154,17 +172,15 @@ RateSetting::RateSetting(juce::AudioProcessorValueTreeState& vts) : rate("Sec") 
     noteLengthAttachment =
         std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(vts, "notelength", notelength);
 
+
+	// tell ui
+	
     addAndMakeVisible(rate);
     addAndMakeVisible(syncBPM);
     addAndMakeVisible(bpmlabel);
     addAndMakeVisible(label);
     addAndMakeVisible(notelength);
 
-    syncBPM.onClick = [this]()
-        {
-            bool bpmMode = syncBPM.getToggleState();
-            rate.knob.setEnabled(!bpmMode);
-        };
 }
 
 void RateSetting::resized() {
@@ -269,7 +285,17 @@ LFOModulator::LFOModulator(juce::AudioProcessorValueTreeState& vts) : width("LFO
         label.setJustificationType(juce::Justification::centred);
         addAndMakeVisible(button);
     }
-    waveFormButt[0].setToggleState(true, juce::dontSendNotification);
+    
+    int count = 0;
+    for (int i = 0; i < 4; i++){
+		auto* p = vts.getRawParameterValue("wavebutton" + std::to_string(i));
+		waveFormButt[i].setToggleState(*p > 0.5f, juce::dontSendNotification);
+		count += (*p > 0.5f ? 1 : 0);
+	}
+	if (!count) {
+		waveFormButt[0].setToggleState(true, juce::dontSendNotification);
+	}
+	
     waveFormButt[0].setButtonText("Sin");
     waveFormButt[1].setButtonText("Square");
     waveFormButt[2].setButtonText("Saw");

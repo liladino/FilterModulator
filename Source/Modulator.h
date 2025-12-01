@@ -19,6 +19,7 @@ public:
     virtual void prepareToPlay(float sampleRate, int samplesPerBlock) = 0;
     virtual float getModulatedCutoff(float cutoff, int samplesPerBlock) = 0;  
     virtual void setRate(float rateHz) = 0;
+    virtual void setPhase(double phase) = 0;
     virtual void syncToBPM(float bpm) {
         if (bpm == 0) { bpm = 60; }
         setRate(bpm / 60.f);
@@ -37,6 +38,7 @@ public:
     void setRate(float rateHz) override;
     void setFilter(int index, float cutoff);
     void setNumActiveSteps(int n);
+    void setPhase(double phase) override;
 private:
     void updateCycle() {
         samplesPerCycle = static_cast<int>(sampleRate / rate);
@@ -59,6 +61,7 @@ public:
     void setFrequency(float newFreq);
     float getNextValue(int samplesPerBlock);
     void setWaveType(WaveType wt);
+    void setPhase(double _phase);
 private:
     void updateIncrement();
     WaveType type = WaveType::Sin;
@@ -77,6 +80,7 @@ public:
     void setDepth(float semitoneDepth);
     void setRate(float rateHz) override;
     float getModulatedCutoff(float cutoff, int samplesPerBlock) override;
+    void setPhase(double phase) override;
 private:
     const float semitone = pow(2.f, 0.0833333333f); //2^(1/12)
 

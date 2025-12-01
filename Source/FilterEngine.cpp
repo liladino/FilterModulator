@@ -80,6 +80,18 @@ void FilterEngine::setModWaveType(WaveGenerator::WaveType newMode) {
    // DBG("WaveType " << newMode);
 }
 
+
+void FilterEngine::setModePhase(double phase) {
+    lfo->setPhase(phase);
+
+    if (BPMsynced) {
+        seq->setPhase(std::fmod(phase * noteLength, 1.0));
+    }
+    else {
+        seq->setPhase(0);
+    }
+}
+
 void FilterEngine::setResonance(float resonance) {
     BWLP->setResonance(resonance);
     BWHP->setResonance(resonance);

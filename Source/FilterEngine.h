@@ -45,6 +45,7 @@ public:
     void setFilterMode(FilterMode newMode);
     void setModulator(ModulatorMode newMode);
     void setModWaveType(WaveGenerator::WaveType newMode);
+    void setModePhase(double phase);
     void setResonance(float resonance);
     void setRate(float rateHz);
     void setRate(); //set the last used rate (amd switch back from bpm mode)

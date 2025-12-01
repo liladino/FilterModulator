@@ -48,6 +48,13 @@ void StepSequencer::setFilter(int index, float cutoff) {
     DBG("Step " << index << " value " << cutoff);
 }
 
+
+void StepSequencer::setPhase(double phase) {
+    currentStep = 0;
+    double temp = static_cast<double>(sampleCount) / static_cast<double>(samplesPerCycle) * phase;
+    sampleCount = static_cast<unsigned long long>(temp);
+}
+ 
 void StepSequencer::setNumActiveSteps(int n) {
     if (currentStep > n - 1) {
         currentStep = 0;
@@ -71,6 +78,10 @@ void WaveGenerator::prepareToPlay(float sampleRate) {
 void WaveGenerator::setFrequency(float newFreq) {
     frequency = newFreq;
     updateIncrement();
+}
+
+void WaveGenerator::setPhase(double _phase) {
+    phase = _phase;
 }
 
 float WaveGenerator::getNextValue(int samplesPerBlock) {
@@ -125,6 +136,10 @@ void Oscillator::setDepth(float semitoneDepth) {
     //depth = (2^(1/12))^semitoneDepth
     depth = pow(semitone, semitoneDepth);
     DBG("depth = " << semitoneDepth << " multiplier: " << depth);
+}
+
+void Oscillator::setPhase(double phase) {
+    wgenerator.setPhase(phase);
 }
 
 void Oscillator::setRate(float rateHz) {
