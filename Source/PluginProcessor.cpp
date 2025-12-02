@@ -145,7 +145,7 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
     else if (paramID == "lfowidth") {
         engine.setLFOwidth(newValue);
     }
-    else if (paramID.dropLastCharacters(1) == "wavebutton") {
+    else if (paramID.dropLastCharacters(1) == "wavebutton" && newValue > 0.5f) {
         switch (paramID.getLastCharacter()) {
         case '1':
             engine.setModWaveType(WaveGenerator::WaveType::Square);
@@ -170,15 +170,15 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
             float val = bpmSet(playHead);
             if (val > 1) {
                 engine.syncToBPM(val);
-                listener->bpmChanged(val);
+                if (listener) listener->bpmChanged(val);
             }
             else {
                 engine.syncToBPM(60); //1 Hz dummy value
-                listener->bpmChanged(60);
+                if (listener) listener->bpmChanged(60);
             }
         }
         else {
-            listener->bpmChanged(0);
+            if (listener) listener->bpmChanged(0);
             engine.setRate();
         }
     }
@@ -212,6 +212,29 @@ FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
                 .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
         parameters(*this, nullptr, juce::Identifier("FilterModulatorPlugin"), createParameterLayout())
 {
+
+    allparams =
+    {
+        "filterMode",
+        "resonance",
+        "cutoff",
+        "modswitch",
+        "numberOfSteps",
+        "lfowidth",
+        "rate",
+        "syncBPM",
+        "notelength"
+    };
+
+    for (int i = 0; i < 4; i++) {
+        std::string id = "wavebutton" + std::to_string(i);
+        allparams.insert(id);
+    }
+    for (int i = 0; i < 16; i++) {
+        std::string id = Sequencer::knobNameBuilder("seqMod", i);
+        allparams.insert(id);
+    }
+
     engine.setFilterMode(FilterEngine::FilterMode::BWLowPass);
     engine.setResonance(1.f);
     engine.setCutoff(500.f);
@@ -375,18 +398,32 @@ juce::AudioProcessorEditor* FilterModulatorAudioProcessor::createEditor()
 }
 
 //==============================================================================
-void FilterModulatorAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+// DAW bezaras utan state restore
+// kozbeszerzett.
+void FilterModulatorAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = parameters.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
-void FilterModulatorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void FilterModulatorAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState != nullptr) {
+        if (xmlState->hasTagName(parameters.state.getType())) {
+            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+            for (auto& param : allparams)
+            {
+                float value = parameters.getRawParameterValue(param)->load();
+                parameterChanged(param, value);
+            }
+        }
+    }
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..

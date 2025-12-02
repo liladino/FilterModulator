@@ -77,6 +77,8 @@ private:
 
     std::map<std::string, int> sequencerKnobIndexMap;
     
+    std::set<std::string> allparams;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterModulatorAudioProcessor)
 };
