@@ -200,12 +200,6 @@ void RateSetting::resized() {
     grid.performLayout(getLocalBounds());
 }
 
-void RateSetting::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
-    vts.addParameterListener("rate", &audioProcessor);
-    vts.addParameterListener("syncBPM", &audioProcessor);
-    vts.addParameterListener("notelength", &audioProcessor);
-}
-
 void RateSetting::bpmChanged(float bpm) {
     DBG(bpm);
     if (bpm > 1) {
@@ -263,12 +257,6 @@ void Sequencer::resized() {
     grid.performLayout(getLocalBounds());
 }
 
-void Sequencer::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
-    for (auto& x : ids) {
-        vts.addParameterListener(x, &audioProcessor);
-    }
-}
-
 /****************
  * LFOModulator *
  ****************/
@@ -305,12 +293,6 @@ LFOModulator::LFOModulator(juce::AudioProcessorValueTreeState& vts) : width("LFO
         std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(vts, "lfowidth", width.slider);
     addAndMakeVisible(width);
     addAndMakeVisible(label);
-}
-
-void LFOModulator::addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor) {
-    vts.addParameterListener("lfowidth", &audioProcessor);
-    for (int i = 0; i < 4; i++)
-        vts.addParameterListener("wavebutton" + std::to_string(i), &audioProcessor);
 }
 
 void LFOModulator::resized() {

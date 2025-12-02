@@ -247,6 +247,10 @@ FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
         std::string id = Sequencer::knobNameBuilder("seqMod", i);
         sequencerKnobIndexMap[id] = i;
     }
+
+    for (const auto& id : allparams)
+        parameters.addParameterListener(id, this);
+
 }
 
 FilterModulatorAudioProcessor::~FilterModulatorAudioProcessor()

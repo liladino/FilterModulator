@@ -47,15 +47,6 @@ FilterModulatorAudioProcessorEditor::FilterModulatorAudioProcessorEditor(FilterM
     addAndMakeVisible(v2);
     addAndMakeVisible(v3);
 
-    vts.addParameterListener("filterMode", &audioProcessor);
-    vts.addParameterListener("cutoff", &audioProcessor);
-    vts.addParameterListener("resonance", &audioProcessor);
-    vts.addParameterListener("modswitch", &audioProcessor);
-    
-    sequencerUI.addListener(vts, audioProcessor);
-    oscillatorUI.addListener(vts, audioProcessor);
-    rate.addListener(vts, audioProcessor);
-    
     audioProcessor.addMyUIListener(&rate);
 
     setSize(810, 630);

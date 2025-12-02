@@ -53,7 +53,7 @@ struct RateSetting : juce::Component, MyUIListener {
 
     RateSetting(juce::AudioProcessorValueTreeState& vts);
     void resized() override;
-    void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
+
     virtual void bpmChanged(float bpm) override;
 
     /*void paint(juce::Graphics& g) override {
@@ -87,8 +87,6 @@ struct Sequencer : juce::Component {
 
     void resized() override;
 
-    void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
-
     /*void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colours::darkgoldenrod); 
         g.drawRect(getLocalBounds());
@@ -109,7 +107,6 @@ struct LFOModulator : juce::Component {
     LFOModulator(juce::AudioProcessorValueTreeState& vts);
 
     void resized() override;
-    void addListener(juce::AudioProcessorValueTreeState& vts, FilterModulatorAudioProcessor& audioProcessor);
 
     /*void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colours::darkslateblue);
