@@ -66,11 +66,14 @@ public:
         this->listener = listener;
     }
 private:
+    void FilterModulatorAudioProcessor::trysetbpm();
+
     MyUIListener* listener = nullptr;
     juce::AudioProcessorValueTreeState parameters;
 
     bool wasPlaying = false;
     double lastPpq = 0.0;
+    bool waitingForValidBpm = false;
 
 
     FilterEngine engine;

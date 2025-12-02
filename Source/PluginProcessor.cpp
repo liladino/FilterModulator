@@ -81,21 +81,6 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     return { params.begin(), params.end() };
 }
 
-float bpmSet(juce::AudioPlayHead* playHead) {
-    if (playHead == nullptr) {
-        return 0;
-    }
-    DBG("playhead non zero");
-    juce::AudioPlayHead::CurrentPositionInfo posInfo;
-
-    if (!(playHead->getCurrentPosition(posInfo))) {
-        return 0;
-    }
-
-    DBG("BPM " << posInfo.bpm);
-    return posInfo.bpm;
-}
-
 void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID, float newValue) {
     DBG("parameterChanged() called " << paramID);
     if (paramID == "filterMode") {
@@ -166,16 +151,7 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
     }
     else if (paramID == "syncBPM") {
         if (newValue > 0.5f) {
-            auto* playHead = getPlayHead();
-            float val = bpmSet(playHead);
-            if (val > 1) {
-                engine.syncToBPM(val);
-                if (listener) listener->bpmChanged(val);
-            }
-            else {
-                engine.syncToBPM(60); //1 Hz dummy value
-                if (listener) listener->bpmChanged(60);
-            }
+            trysetbpm();
         }
         else {
             if (listener) listener->bpmChanged(0);
@@ -204,6 +180,33 @@ void FilterModulatorAudioProcessor::parameterChanged(const juce::String& paramID
     }
 }
 
+float getbpm(juce::AudioPlayHead* playHead) {
+    if (playHead == nullptr) {
+        return 0;
+    }
+    DBG("playhead non zero");
+    juce::AudioPlayHead::CurrentPositionInfo posInfo;
+
+    if (!(playHead->getCurrentPosition(posInfo))) {
+        return 0;
+    }
+
+    DBG("BPM " << posInfo.bpm);
+    return posInfo.bpm;
+}
+
+void FilterModulatorAudioProcessor::trysetbpm() {
+    auto* playHead = getPlayHead();
+    float val = getbpm(playHead);
+    if (val > 1) {
+        engine.syncToBPM(val);
+        if (listener) listener->bpmChanged(val);
+    }
+    else {
+        engine.syncToBPM(60); //1 Hz dummy value
+        if (listener) listener->bpmChanged(60);
+    }
+}
 
 //==============================================================================
 FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
@@ -244,8 +247,6 @@ FilterModulatorAudioProcessor::FilterModulatorAudioProcessor()
         std::string id = Sequencer::knobNameBuilder("seqMod", i);
         sequencerKnobIndexMap[id] = i;
     }
-    //engine.bindCutoff(parameters.getRawParameterValue("cutoff"));
-    //engine.bindRes(parameters.getRawParameterValue("resonance"));
 }
 
 FilterModulatorAudioProcessor::~FilterModulatorAudioProcessor()
@@ -361,6 +362,11 @@ void FilterModulatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    if (waitingForValidBpm) {
+        waitingForValidBpm = false;
+        trysetbpm();
+    }
+
     if (auto* ph = getPlayHead())
     {
         auto pos = ph->getPosition();
@@ -415,11 +421,12 @@ void FilterModulatorAudioProcessor::setStateInformation(const void* data, int si
         if (xmlState->hasTagName(parameters.state.getType())) {
             parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
 
-            for (auto& param : allparams)
-            {
+            for (auto& param : allparams) {
                 float value = parameters.getRawParameterValue(param)->load();
                 parameterChanged(param, value);
             }
+
+            if (parameters.getParameter("syncBPM")->getValue() > 0.5f) waitingForValidBpm = true;
         }
     }
 }
